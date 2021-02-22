@@ -20,9 +20,12 @@ spinner.ontransitionend = () => {
 
 let points = [[],[]]
 
+
 function onResults(results) {
   // Hide the spinner.
   document.body.classList.add('loaded');
+  const bg_color = new cv.Scalar(0,0,0,0)
+  let oekaki_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, bg_color);
 
   // Update the frame rate.
   // fpsControl.tick();
@@ -30,11 +33,9 @@ function onResults(results) {
   // Draw the overlays.
   canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-  canvasCtx.drawImage(
-      results.image, 0, 0, canvasElement.width, canvasElement.height);
+  canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
-  let img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4);
-  img.data.set(canvasCtx.getImageData(0, 0, canvasElement.width, canvasElement.height).data);
+  // oekaki_img.data.set(canvasCtx.getImageData(0, 0, canvasElement.width, canvasElement.height).data);
 
   if (results.multiHandLandmarks && results.multiHandedness) {
     for (let index = 0; index < results.multiHandLandmarks.length; index++) {
@@ -60,22 +61,19 @@ function onResults(results) {
 
 
   // points.forEach(p=>{
-  //   cv.circle(img, p, 5, [255, 0, 0, 255], cv.FILLED);
+  //   cv.circle(oekaki_img, p, 5, [255, 0, 0, 255], cv.FILLED);
   // })
 
   let colors = [new cv.Scalar(0, 255, 0, 255), new cv.Scalar(255, 0, 0, 255)];  // RGBA
   for (let hand_n = 0; hand_n < maxNumHands; hand_n++){
     const line_points = draw_calc(points[hand_n]);
     for (let i = 0; i < line_points.length - 1; i++) {
-      cv.line(img, line_points[i], line_points[i + 1], colors[hand_n], 3, cv.LINE_8, 0);
+      cv.line(oekaki_img, line_points[i], line_points[i + 1], colors[hand_n], 3, cv.LINE_8, 0);
     }
   }
 
-  // cv.polylines(img, line_points, false, color, 1, cv.LINE_8);
-  cv.imshow(canvasElement, img);
-  img.delete();
-
-
+  cv.imshow(canvasElement, oekaki_img);
+  oekaki_img.delete();
 
   canvasCtx.restore();
 }
