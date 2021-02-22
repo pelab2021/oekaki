@@ -6,6 +6,7 @@ const canvasElement =
 const controlsElement =
     document.getElementsByClassName('control-panel')[0];
 const canvasCtx = canvasElement.getContext('2d');
+const maxNumHands = 2;
 
 // We'll add this to our control panel later, but we'll save it here so we can
 // call tick() each time the graph runs.
@@ -17,7 +18,7 @@ spinner.ontransitionend = () => {
   spinner.style.display = 'none';
 };
 
-let points = []
+let points = [[],[]]
 
 function onResults(results) {
   // Hide the spinner.
@@ -47,19 +48,34 @@ function onResults(results) {
       //   color: isRightHand ? '#00FF00' : '#FF0000',
       //   fillColor: isRightHand ? '#FF0000' : '#00FF00'
       // });
-      // if (isRightHand){
       p = new cv.Point(landmarks[8].x*canvasElement.width, landmarks[8].y*canvasElement.height);
-      points.push(p);
-      // }
+      if (isRightHand){
+        points[0].push(p);
+      }else{
+        points[1].push(p);
+      }
     }
 
   }
 
-  points.forEach(p=>{
-    cv.circle(img, p, 5, [255, 0, 0, 255], cv.FILLED);
-  })
+
+  // points.forEach(p=>{
+  //   cv.circle(img, p, 5, [255, 0, 0, 255], cv.FILLED);
+  // })
+
+  let colors = [new cv.Scalar(0, 255, 0, 255), new cv.Scalar(255, 0, 0, 255)];  // RGBA
+  for (let hand_n = 0; hand_n < maxNumHands; hand_n++){
+    const line_points = draw_calc(points[hand_n]);
+    for (let i = 0; i < line_points.length - 1; i++) {
+      cv.line(img, line_points[i], line_points[i + 1], colors[hand_n], 3, cv.LINE_8, 0);
+    }
+  }
+
+  // cv.polylines(img, line_points, false, color, 1, cv.LINE_8);
   cv.imshow(canvasElement, img);
   img.delete();
+
+
 
   canvasCtx.restore();
 }
@@ -71,7 +87,7 @@ const hands = new Hands({locateFile: (file) => {
 }})
 
 options = {
-      maxNumHands: 2,
+      maxNumHands: maxNumHands,
       minDetectionConfidence: 0.7,
       minTrackingConfidence: 0.5
 }
@@ -123,7 +139,22 @@ camera.start();
 //       hands.setOptions(options);
 //     });
 
-
-// let points2 = []
-// points[]
-// let splinePoints = getCurvePoints(points2, ...);
+function draw_calc(points){
+  let retval = []
+  if (points.length > 0){
+    let points2 = []
+    points.forEach((p) => {
+      points2.push(p.x)
+      points2.push(p.y)
+    })
+    let tension = 0.5;
+    let numOfSeg = 20;
+    let close = false;
+    let splinePoints = getCurvePoints(points2, tension, numOfSeg, close);
+    for (let i = 0; i < splinePoints.length / 2; i++) {
+      p = new cv.Point(splinePoints[2 * i], splinePoints[2 * i + 1])
+      retval.push(p)
+    }
+  }
+  return retval;
+}
