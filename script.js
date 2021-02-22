@@ -35,7 +35,6 @@ function onResults(results) {
   let img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4);
   img.data.set(canvasCtx.getImageData(0, 0, canvasElement.width, canvasElement.height).data);
 
-  console.log(results);
   if (results.multiHandLandmarks && results.multiHandedness) {
     for (let index = 0; index < results.multiHandLandmarks.length; index++) {
       const classification = results.multiHandedness[index];
@@ -50,8 +49,7 @@ function onResults(results) {
       // });
       // if (isRightHand){
       p = new cv.Point(landmarks[8].x*canvasElement.width, landmarks[8].y*canvasElement.height);
-      console.log(landmarks[8]);
-      points.push(p)
+      points.push(p);
       // }
     }
 
@@ -67,7 +65,9 @@ function onResults(results) {
 }
 
 const hands = new Hands({locateFile: (file) => {
-  return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1/${file}`;
+  // return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1/${file}`;
+  return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1.1612238212/${file}`;
+
 }})
 
 options = {
@@ -122,3 +122,8 @@ camera.start();
 //       videoElement.classList.toggle('selfie', options.selfieMode);
 //       hands.setOptions(options);
 //     });
+
+
+// let points2 = []
+// points[]
+// let splinePoints = getCurvePoints(points2, ...);
