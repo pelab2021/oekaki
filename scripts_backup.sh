@@ -4,3 +4,8 @@ curl -O "https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.1/control_utils
 curl -O "https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.1/drawing_utils.js"
 curl -O "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1.1612238212/hands.js" 
 curl -O "https://docs.opencv.org/master/opencv.js"
+curl -O "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1.1612238212/hands_solution_packed_assets_loader.js"
+curl -O "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1.1612238212/hands_solution_wasm_bin.js"
+curl -O "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1.1612238212/hands_solution_packed_assets.data"
+curl -O "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1.1612238212/hands_solution_wasm_bin.wasm"
+curl -O "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1.1612238212/hands.binarypb"

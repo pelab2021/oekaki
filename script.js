@@ -79,13 +79,12 @@ function onResults(results) {
 const hands = new Hands({locateFile: (file) => {
   // return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1/${file}`;
   return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1.1612238212/${file}`;
-
 }})
 
 options = {
       maxNumHands: maxNumHands,
       minDetectionConfidence: 0.7,
-      minTrackingConfidence: 0.5
+      minTrackingConfidence: 0.7
 }
 
 hands.setOptions(options);
