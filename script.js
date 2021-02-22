@@ -1,4 +1,3 @@
-// Our input frames will come from here.
 const videoElement =
     document.getElementsByClassName('input_video')[0];
 const canvasElement =
@@ -24,6 +23,7 @@ let points = [[],[]]
 function onResults(results) {
   // Hide the spinner.
   document.body.classList.add('loaded');
+
   const bg_color = new cv.Scalar(0,0,0,0)
   let oekaki_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, bg_color);
 
@@ -58,8 +58,6 @@ function onResults(results) {
     }
 
   }
-
-
   // points.forEach(p=>{
   //   cv.circle(oekaki_img, p, 5, [255, 0, 0, 255], cv.FILLED);
   // })
