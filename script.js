@@ -1,3 +1,10 @@
+
+
+const maxNumHands = 2;
+//連続だとみなす2点間の距離の上限
+const maxNorm = 200;
+
+
 const videoElement =
     document.getElementsByClassName('input_video')[0];
 const canvasElement =
@@ -5,7 +12,6 @@ const canvasElement =
 const controlsElement =
     document.getElementsByClassName('control-panel')[0];
 const canvasCtx = canvasElement.getContext('2d');
-const maxNumHands = 2;
 
 // We'll add this to our control panel later, but we'll save it here so we can
 // call tick() each time the graph runs.
@@ -17,15 +23,19 @@ spinner.ontransitionend = () => {
   spinner.style.display = 'none';
 };
 
-let points = [[],[]]
+let now_line = [[],[]];
+let old_imgs = [];
 
+
+const bg_color = new cv.Scalar(0,0,0,0);
+let lines = [[], []];
 
 function onResults(results) {
   // Hide the spinner.
   document.body.classList.add('loaded');
 
-  const bg_color = new cv.Scalar(0,0,0,0)
-  let oekaki_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, bg_color);
+
+  // let now_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, bg_color);
 
   // Update the frame rate.
   // fpsControl.tick();
@@ -35,7 +45,7 @@ function onResults(results) {
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
   canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
-  // oekaki_img.data.set(canvasCtx.getImageData(0, 0, canvasElement.width, canvasElement.height).data);
+  // now_img.data.set(canvasCtx.getImageData(0, 0, canvasElement.width, canvasElement.height).data);
 
   if (results.multiHandLandmarks && results.multiHandedness) {
     for (let index = 0; index < results.multiHandLandmarks.length; index++) {
@@ -49,29 +59,48 @@ function onResults(results) {
       //   color: isRightHand ? '#00FF00' : '#FF0000',
       //   fillColor: isRightHand ? '#FF0000' : '#00FF00'
       // });
-      p = new cv.Point(landmarks[8].x*canvasElement.width, landmarks[8].y*canvasElement.height);
-      if (isRightHand){
-        points[0].push(p);
-      }else{
-        points[1].push(p);
+      const p = new cv.Point(landmarks[8].x*canvasElement.width, landmarks[8].y*canvasElement.height);
+      const nl_i = isRightHand? 0 : 1;
+      
+      const nl_len = now_line[nl_i].length;
+      if (now_line[nl_i].length > 0){
+        const sq_norm = (now_line[nl_i][nl_len - 1].x - p.x) ** 2 + (now_line[nl_i][nl_len - 1].y - p.y) ** 2;
+        if (sq_norm > maxNorm ** 2) {
+
+          // old_imgs.push(now_img);
+          // now_img.delete()
+          // now_img = null;
+          lines[nl_i].push(_.cloneDeep(now_line[nl_i]));
+          now_line[nl_i].splice(0);
+          console.log(lines)
+        }
       }
+      now_line[nl_i].push(p);
     }
 
   }
-  // points.forEach(p=>{
-  //   cv.circle(oekaki_img, p, 5, [255, 0, 0, 255], cv.FILLED);
-  // })
 
-  let colors = [new cv.Scalar(0, 255, 0, 255), new cv.Scalar(255, 0, 0, 255)];  // RGBA
+  let now_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, bg_color);
+
+  const colors = [new cv.Scalar(0, 255, 0, 255), new cv.Scalar(255, 0, 0, 255)];  // RGBA
+
   for (let hand_n = 0; hand_n < maxNumHands; hand_n++){
-    const line_points = draw_calc(points[hand_n]);
-    for (let i = 0; i < line_points.length - 1; i++) {
-      cv.line(oekaki_img, line_points[i], line_points[i + 1], colors[hand_n], 3, cv.LINE_8, 0);
-    }
+    const drawline = (line)=>{
+      const line_points = draw_calc(line);
+      for (let i = 0; i < line_points.length - 1; i++) {
+        cv.line(now_img, line_points[i], line_points[i + 1], colors[hand_n], 3, cv.LINE_8, 0);
+      }
+    };
+    lines[hand_n].forEach(drawline);
+    drawline(now_line[hand_n])
   }
 
-  cv.imshow(canvasElement, oekaki_img);
-  oekaki_img.delete();
+  old_imgs.forEach((o_img)=>{
+    // cv.imshow(canvasElement, o_img);
+  });
+
+  cv.imshow(canvasElement, now_img);
+  now_img.delete();
 
   canvasCtx.restore();
 }
@@ -134,11 +163,11 @@ camera.start();
 //       hands.setOptions(options);
 //     });
 
-function draw_calc(points){
+function draw_calc(now_line){
   let retval = []
-  if (points.length > 0){
+  if (now_line.length > 0){
     let points2 = []
-    points.forEach((p) => {
+    now_line.forEach((p) => {
       points2.push(p.x)
       points2.push(p.y)
     })
