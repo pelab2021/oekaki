@@ -1,18 +1,19 @@
 import { freelizer } from 'https://cdn.jsdelivr.net/npm/freelizer@1.0.0/index.min.js'
 
 const maxNumHands = 2;
-//連続だとみなす2点間の距離の上限
-const maxNorm = 200;
 
-//連続だとみなす2点間の時間の長さの上限
-const maxTime = 20;
+//連続だとみなす2点間の距離の上限
+const maxNorm = 170;
+//線の太さ
+const line_thickness = 5;
 
 let audio_data = {
   on: true,
   //0:白 1:赤 ... 8:黒
   color_index: 0
 }
-// let audio_data = { 
+
+// data = { 
 //   deviation: 28.924883259925537,
 //   frequency: 1075.4271444623207,
 //   note: "C",
@@ -66,6 +67,7 @@ let old_imgs = [];
 
 const bg_color = new cv.Scalar(0, 0, 0, 0);
 let lines = [[], []];
+let back_button_cnt = 0;
 
 const colors =
   [
@@ -80,18 +82,18 @@ const colors =
     new cv.Scalar(0, 0, 0, 255),
   ];  // RGBA
 
-function draw_img(src, dst){
-    let channels = new cv.MatVector();
-    cv.split(src, channels);
+function draw_img(src, dst) {
+  let channels = new cv.MatVector();
+  cv.split(src, channels);
 
-    let alpha = channels.get(3);
-    let mask = new cv.Mat();
-    cv.threshold(alpha, mask, 0, 255, cv.THRESH_BINARY);
-    src.copyTo(dst, mask);
+  let alpha = channels.get(3);
+  let mask = new cv.Mat();
+  cv.threshold(alpha, mask, 0, 255, cv.THRESH_BINARY);
+  src.copyTo(dst, mask);
 
-    channels.delete();
-    alpha.delete();
-    mask.delete();
+  channels.delete();
+  alpha.delete();
+  mask.delete();
 }
 
 function onResults(results) {
@@ -150,13 +152,18 @@ function onResults(results) {
       const drawline = (line) => {
         const line_points = draw_calc(line);
         for (let i = 0; i < line_points.length - 1; i++) {
-          cv.line(now_img, line_points[i], line_points[i + 1], colors[audio_data.color_index], 3, cv.LINE_8, 0);
+          cv.line(now_img, line_points[i], line_points[i + 1], colors[audio_data.color_index], line_thickness, cv.LINE_8, 0);
         }
       };
       lines[hand_i].forEach(drawline);
       drawline(now_line[hand_i])
     }
   }
+  while (back_button_cnt > 0) {
+    old_imgs.splice(-1, 1);
+    back_button_cnt -= 1;
+  }
+
 
   old_imgs.forEach((o_img) => {
     draw_img(o_img, result_image)
@@ -255,4 +262,8 @@ function draw_calc(line) {
     }
   }
   return retval;
+}
+
+document.getElementById("back_button").onclick = () => {
+  back_button_cnt += 1;
 }
