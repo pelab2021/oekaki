@@ -13,27 +13,15 @@ let audio_data = {
   color_index: 0
 }
 
-// data = { 
+function audio_data_update(data) {
+// data例
+//{
 //   deviation: 28.924883259925537,
 //   frequency: 1075.4271444623207,
 //   note: "C",
 //   noteFrequency: 1046.5022612023952,
 //   octave: 6,
 // }
-
-let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-let analyser = audioCtx.createAnalyser();
-
-// let bufferLength = analyser.frequencyBinCount;
-// let dataArray = new Float32Array(bufferLength);
-// analyser.getFloatTimeDomainData(dataArray);
-
-// let max = dataArray.reduce((a,b)=>Math.max(a,b))
-// console.log(max)
-
-
-
-function audio_data_update(data) {
   if (Object.keys(data).includes("frequency") && data["frequency"] !=21.55425219941349) {
     audio_data.on = true
     audio_data.color_index = ((data.note.charCodeAt(0) - 65) + data.octave * 8) % 9;
