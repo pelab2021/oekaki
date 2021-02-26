@@ -21,8 +21,20 @@ let audio_data = {
 //   octave: 6,
 // }
 
+let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let analyser = audioCtx.createAnalyser();
+
+// let bufferLength = analyser.frequencyBinCount;
+// let dataArray = new Float32Array(bufferLength);
+// analyser.getFloatTimeDomainData(dataArray);
+
+// let max = dataArray.reduce((a,b)=>Math.max(a,b))
+// console.log(max)
+
+
+
 function audio_data_update(data) {
-  if (Object.keys(data).includes("frequency")) {
+  if (Object.keys(data).includes("frequency") && data["frequency"] !=21.55425219941349) {
     audio_data.on = true
     audio_data.color_index = ((data.note.charCodeAt(0) - 65) + data.octave * 8) % 9;
   } else {
@@ -39,6 +51,8 @@ function audio_data_update(data) {
     console.error(error);
   }
 })()
+
+
 
 
 
