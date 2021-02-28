@@ -8,7 +8,6 @@ const MAX_NORM = 200;
 const LINE_THICKNESS = 5;
 const MIC_THRESHOLD = 0.01
 
-
 const videoElement =
   document.getElementsByClassName('input_video')[0];
 const canvasElement =
@@ -83,6 +82,42 @@ const audio_data_update = (data) => {
   }
 })()
 
+// // local fileを対象にworkerを起動すると出るエラーのための対処
+// // https://tshino.hatenablog.com/entry/20180106/1515218776
+// var newWorkerViaBlob = function(relativePath) {
+//   var baseURL = window.location.href.replace(/\\/g, '/').replace(/\/[^\/]*$/, '/');
+//   var array = ['importScripts("' + baseURL + relativePath + '");'];
+//   var blob = new Blob(array, {type: 'text/javascript'});
+//   var url = window.URL.createObjectURL(blob);
+//   return new Worker(url);
+// };
+// var newWorker = function(relativePath) {
+//   try {
+//     return newWorkerViaBlob(relativePath);
+//   } catch (e) {
+//     return new Worker(relativePath);
+//   }
+// };
+
+let render_worker = null;
+let camera_img_from_mediapipe = null;
+
+
+if (window.Worker) {
+  render_worker = new Worker("render.js")
+
+  render_worker.onmessage = (e) => {
+    let result_img = e.data;
+    canvasCtx.save();
+    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    canvasCtx.drawImage(camera_img_from_mediapipe, 0, 0, canvasElement.width, canvasElement.height);
+    canvasCtx.putImageData(result_img,0,0)
+    canvasCtx.restore();
+  }
+
+}else{
+  console.err("can't find window.Worker.");
+}
 //0.5秒ごとにfpsを計算して値を更新する
 class fpsCheck {
   constructor(callback = null) {
@@ -122,174 +157,34 @@ let fpsch = new fpsCheck((_fpsch) => {
 fpsch.start();
 
 
-let now_line = [[], []];
-let old_imgs = [];
-let old_img_sum = null;
 
-const transparent_color = new cv.Scalar(0, 0, 0, 0);
-
-let lines = [[], []];
-let back_button_cnt = 0;
-const get_new_img = () => {
-  return new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
-}
-
-const colors =
-  [
-    new cv.Scalar(255, 255, 255, 255),
-    new cv.Scalar(255, 0, 0, 255),
-    new cv.Scalar(255, 165, 0, 255),
-    new cv.Scalar(255, 255, 0, 255),
-    new cv.Scalar(0, 128, 0, 255),
-    new cv.Scalar(0, 255, 255, 255),
-    new cv.Scalar(0, 0, 255, 255),
-    new cv.Scalar(128, 0, 128, 255),
-    new cv.Scalar(0, 0, 0, 255),
-  ];  // RGBA
-
-const draw_img = (src, dst) => {
-  let channels = new cv.MatVector();
-  cv.split(src, channels);
-
-  let alpha = channels.get(3);
-  let mask = new cv.Mat();
-
-  if (src.erase_mode) {
-    let transparent_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
-    cv.threshold(alpha, mask, 0, 255, cv.THRESH_BINARY);
-    transparent_img.copyTo(dst, mask);
-    transparent_img.delete();
-  } else {
-    cv.threshold(alpha, mask, 0, 255, cv.THRESH_BINARY);
-    src.copyTo(dst, mask);
-  }
-
-  channels.delete();
-  alpha.delete();
-  mask.delete();
-}
-
-
+let onresults_first=true
 const onResults = (results) => {
-  // Hide the spinner.
-  document.body.classList.add('loaded');
+  if (onresults_first){
+    // Hide the spinner.
+    document.body.classList.add('loaded');
+    onresults_first= false
+  }
 
   fpsch.tick()
-
-  canvasCtx.save();
-  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-  canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-
-  if (audio_data.on) {
-    if (results.multiHandLandmarks && results.multiHandedness) {
-      for (let index = 0; index < results.multiHandLandmarks.length; index++) {
-        const classification = results.multiHandedness[index];
-        const isRightHand = classification.label === 'Right';
-        const landmarks = results.multiHandLandmarks[index];
-        // drawConnectors(
-        //     canvasCtx, landmarks, HAND_CONNECTIONS,
-        //     {color: isRightHand ? '#00FF00' : '#FF0000'});
-        // drawLandmarks(canvasCtx, landmarks, {
-        //   color: isRightHand ? '#00FF00' : '#FF0000',
-        //   fillColor: isRightHand ? '#FF0000' : '#00FF00'
-        // });
-        const p = new cv.Point(landmarks[8].x * canvasElement.width, landmarks[8].y * canvasElement.height);
-        const hand_i = isRightHand ? 0 : 1;
-
-        const nl_len = now_line[hand_i].length;
-        if (now_line[hand_i].length > 0) {
-          const sq_norm = (now_line[hand_i][nl_len - 1].x - p.x) ** 2 + (now_line[hand_i][nl_len - 1].y - p.y) ** 2;
-          if (sq_norm > MAX_NORM ** 2) {
-            lines[hand_i].push(_.cloneDeep(now_line[hand_i]));
-            now_line[hand_i].splice(0);
-          }
-        }
-        now_line[hand_i].push(p);
-      }
-    }
-  }
-
-  let is_empty = true;
-  const check_empty = (line) => {
-    is_empty = is_empty && (line.length == 0);
-  };
-  lines.forEach(check_empty)
-  now_line.forEach(check_empty)
-
-  let result_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
-  let now_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
-
-  if (old_img_sum == null) {
-    old_img_sum = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
-  }
-
-  now_img.erase_mode = document.getElementById("pen_mode").value == "eraser"
-
-  let old_imgs_changed = false;
-
-  if (!is_empty) {
-
-    for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
-      const drawline = (line) => {
-        const line_points = draw_calc(line);
-        for (let i = 0; i < line_points.length - 1; i++) {
-          cv.line(now_img, line_points[i], line_points[i + 1], colors[audio_data.color_index], LINE_THICKNESS, cv.LINE_8, 0);
-        }
-      };
-      lines[hand_i].forEach(drawline);
-      drawline(now_line[hand_i])
-    }
-  }
-
-  draw_img(old_img_sum, result_img)
-  draw_img(now_img, result_img)
-  cv.imshow(canvasElement, result_img);
-  result_img.delete()
-
-  if (!audio_data.on && !is_empty) {
-    for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
-      lines[hand_i].splice(0)
-      now_line[hand_i].splice(0);
-    }
-    old_imgs.push(now_img);
-    old_imgs_changed = true
-  } else {
-    now_img.delete();
-  }
-
-  while (back_button_cnt > 0) {
-    old_imgs.splice(-1, 1);
-    back_button_cnt -= 1;
-    old_imgs_changed = true
-  }
-
-  if (old_imgs_changed) {
-    old_img_sum.setTo(transparent_color)
-    old_imgs.forEach((o_img) => {
-      draw_img(o_img, old_img_sum)
-    });
-  }
-  canvasCtx.restore();
-}
-
-const draw_calc = (line) =>{
-  let retval = []
-  if (line.length > 0) {
-    let points2 = []
-    line.forEach((p) => {
-      points2.push(p.x)
-      points2.push(p.y)
+  camera_img_from_mediapipe = results.image
+  const hands_found = results.multiHandLandmarks && results.multiHandedness
+  const isRightHand = hands_found? 
+  results.multiHandedness.map((classification, index, array)=>{
+        return classification.label === 'Right';
     })
-    let tension = 0.5;
-    let numOfSeg = 20;
-    let close = false;
-    let splinePoints = getCurvePoints(points2, tension, numOfSeg, close);
-    for (let i = 0; i < splinePoints.length / 2; i++) {
-      let p = new cv.Point(splinePoints[2 * i], splinePoints[2 * i + 1])
-      retval.push(p)
-    }
+    :null;
+  const results_min = {
+    msg:"main",
+    audio_data: audio_data,
+    hands_found: hands_found,
+    isRightHand: isRightHand,
+    landmarks: hands_found? results.multiHandLandmarks:null,
+    erase_mode :document.getElementById("pen_mode").value == "eraser",
+    height:canvasElement.height,
+    width:canvasElement.width
   }
-  return retval;
+  render_worker.postMessage(results_min);
 }
 
 const hands = new Hands({
@@ -342,3 +237,7 @@ document.getElementById("back_button").onclick = () => {
 document.getElementById("save_button").onclick = () => {
   save_paint()
 }
+
+
+
+
