@@ -125,22 +125,30 @@ body {
   position: absolute;
 }
 
+#back_button{
+  position: absolute;
+  left: 0px;
+  top: 0;
+  white-space:nowrap;
+}
+
 #pen_mode{
   position: absolute;
-  left: 0;
-  top: 720px;
+  left: 100px;
+  top: 0;
 }
 
 #fps_display{
   position: absolute;
-  left: 100px;
-  top: 720px;
+  left: 300px;
+  top: 0;
   color:black;
+  background-color: white;
   white-space:nowrap;
 }
 #save_button{
   position: absolute;
   left: 200px;
-  top: 720px;
+  top: 0;
   color:black;
 }
