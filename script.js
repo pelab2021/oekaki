@@ -1,11 +1,12 @@
 import { freelizer } from 'https://cdn.jsdelivr.net/npm/freelizer@1.0.0/index.min.js'
 
-const maxNumHands = 2;
+const MAX_NUM_HANDS = 2;
 
 //連続だとみなす2点間の距離の上限
-const maxNorm = 200;
+const MAX_NORM = 200;
 //線の太さ
-const line_thickness = 5;
+const LINE_THICKNESS = 5;
+const MIC_THRESHOLD = 0.01
 
 
 const videoElement =
@@ -30,24 +31,49 @@ let audio_data = {
   color_index: 0
 }
 
-function audio_data_update(data) {
-// data例
-//{
-//   deviation: 28.924883259925537,
-//   frequency: 1075.4271444623207,
-//   note: "C",
-//   noteFrequency: 1046.5022612023952,
-//   octave: 6,
-// }
-  if (Object.keys(data).includes("frequency") && data["frequency"] !=21.55425219941349) {
-    audio_data.on = true
-    audio_data.color_index = ((data.note.charCodeAt(0) - 65) + data.octave * 8) % 9;
-  } else {
-    audio_data.on = false
-  }
+let audioCtx = null
+let wavedata = null
+let analyser = null
+
+const audio_init = async () => {
+  audioCtx = new (window.AudioContext
+    || window.webkitAudioContext || window.mozAudioContext)();
+  analyser = audioCtx.createAnalyser();
+  wavedata = new Float32Array(analyser.fftSize);
+  analyser.fftSize = 512;
+  // analyser.connect(audioCtx.destination)
+  const mic_stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const mic_input = audioCtx.createMediaStreamSource(mic_stream);
+  mic_input.connect(analyser);
 }
 
-; (async () => {
+window.onload = async () => {
+  audio_init()
+}
+
+const audio_data_update = (data) => {
+  // data例
+  //{
+  //   deviation: 28.924883259925537,
+  //   frequency: 1075.4271444623207,
+  //   note: "C",
+  //   noteFrequency: 1046.5022612023952,
+  //   octave: 6,
+  // }
+
+  let on = false
+  if (analyser != null) {
+    analyser.getFloatTimeDomainData(wavedata);
+    const max = wavedata.reduce((a, b) => Math.max(a, b))
+    on = max > MIC_THRESHOLD
+  }
+  if (on && Object.keys(data).includes("frequency") && data["frequency"] != 21.55425219941349) {
+    audio_data.color_index = ((data.note.charCodeAt(0) - 65) + data.octave * 8) % 9;
+  }
+  audio_data.on = on
+}
+
+;(async () => {
   try {
     const { start, stop, subscribe, unsubscribe } = await freelizer()
     start()
@@ -58,39 +84,39 @@ function audio_data_update(data) {
 })()
 
 //0.5秒ごとにfpsを計算して値を更新する
-class fpsCheck{
-  constructor(callback = null){
+class fpsCheck {
+  constructor(callback = null) {
     this.counter = 0
     this.intervalId = null;
     this.fps = -1
     //500ms
     this.update_period = 500;
     this.callback = callback
-    }
-  _update(){
-    this.fps = this.counter / (this.update_period/1000)
+  }
+  _update() {
+    this.fps = this.counter / (this.update_period / 1000)
     this.counter = 0
     this.callback(this)
   }
-  start(){
-    if (this.intervalId == null){
+  start() {
+    if (this.intervalId == null) {
       //0.5sごとにupdate
       this.intervalId = setInterval(this._update.bind(this), this.update_period);
     }
 
   }
-  stop(){
-    if(!(this.intervalId== null)){
+  stop() {
+    if (!(this.intervalId == null)) {
       clearInterval(this.intervalId);
     }
     this.fps = -1;
   }
-  tick(){
+  tick() {
     this.counter++;
   }
 }
 
-let fpsch= new fpsCheck((_fpsch)=>{
+let fpsch = new fpsCheck((_fpsch) => {
   document.getElementById("fps_display").innerHTML = _fpsch.fps.toString() + " fps"
 })
 fpsch.start();
@@ -104,7 +130,7 @@ const transparent_color = new cv.Scalar(0, 0, 0, 0);
 
 let lines = [[], []];
 let back_button_cnt = 0;
-const get_new_img = ()=>{
+const get_new_img = () => {
   return new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
 }
 
@@ -121,19 +147,19 @@ const colors =
     new cv.Scalar(0, 0, 0, 255),
   ];  // RGBA
 
-const draw_img = (src, dst)=> {
+const draw_img = (src, dst) => {
   let channels = new cv.MatVector();
   cv.split(src, channels);
 
   let alpha = channels.get(3);
   let mask = new cv.Mat();
 
-  if(src.erase_mode){
+  if (src.erase_mode) {
     let transparent_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
     cv.threshold(alpha, mask, 0, 255, cv.THRESH_BINARY);
     transparent_img.copyTo(dst, mask);
     transparent_img.delete();
-  } else{
+  } else {
     cv.threshold(alpha, mask, 0, 255, cv.THRESH_BINARY);
     src.copyTo(dst, mask);
   }
@@ -144,7 +170,7 @@ const draw_img = (src, dst)=> {
 }
 
 
-const onResults = (results) =>{
+const onResults = (results) => {
   // Hide the spinner.
   document.body.classList.add('loaded');
 
@@ -173,7 +199,7 @@ const onResults = (results) =>{
         const nl_len = now_line[hand_i].length;
         if (now_line[hand_i].length > 0) {
           const sq_norm = (now_line[hand_i][nl_len - 1].x - p.x) ** 2 + (now_line[hand_i][nl_len - 1].y - p.y) ** 2;
-          if (sq_norm > maxNorm ** 2) {
+          if (sq_norm > MAX_NORM ** 2) {
             lines[hand_i].push(_.cloneDeep(now_line[hand_i]));
             now_line[hand_i].splice(0);
           }
@@ -182,7 +208,6 @@ const onResults = (results) =>{
       }
     }
   }
-
 
   let is_empty = true;
   const check_empty = (line) => {
@@ -194,21 +219,21 @@ const onResults = (results) =>{
   let result_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
   let now_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
 
-  if (old_img_sum == null){
+  if (old_img_sum == null) {
     old_img_sum = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
   }
 
-  now_img.erase_mode = document.getElementById("pen_mode").value=="eraser"
+  now_img.erase_mode = document.getElementById("pen_mode").value == "eraser"
 
   let old_imgs_changed = false;
 
   if (!is_empty) {
 
-    for (let hand_i = 0; hand_i < maxNumHands; hand_i++) {
+    for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
       const drawline = (line) => {
         const line_points = draw_calc(line);
         for (let i = 0; i < line_points.length - 1; i++) {
-          cv.line(now_img, line_points[i], line_points[i + 1], colors[audio_data.color_index], line_thickness, cv.LINE_8, 0);
+          cv.line(now_img, line_points[i], line_points[i + 1], colors[audio_data.color_index], LINE_THICKNESS, cv.LINE_8, 0);
         }
       };
       lines[hand_i].forEach(drawline);
@@ -216,15 +241,13 @@ const onResults = (results) =>{
     }
   }
 
-
-
   draw_img(old_img_sum, result_img)
   draw_img(now_img, result_img)
   cv.imshow(canvasElement, result_img);
   result_img.delete()
 
   if (!audio_data.on && !is_empty) {
-    for (let hand_i = 0; hand_i < maxNumHands; hand_i++) {
+    for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
       lines[hand_i].splice(0)
       now_line[hand_i].splice(0);
     }
@@ -240,65 +263,16 @@ const onResults = (results) =>{
     old_imgs_changed = true
   }
 
-  if(old_imgs_changed){
-    console.log("channged!")
+  if (old_imgs_changed) {
     old_img_sum.setTo(transparent_color)
     old_imgs.forEach((o_img) => {
       draw_img(o_img, old_img_sum)
     });
   }
-
   canvasCtx.restore();
 }
 
-
-const save_paint = ()=>{
-  if (!(old_img_sum == null)) {
-    let target = get_new_img()
-    cv.flip(old_img_sum, target, 1);
-    cv.imshow(canvasElementForSave, target);
-  }
-
-  if (canvasElementForSave.toBlob) {
-    // HTMLCanvasElement.toBlob() が使用できる場合
-
-    // canvasの図形をPNG形式のBlobオブジェクトに変換
-    canvasElementForSave.toBlob((blob)=> {
-      saveAs(blob, "oekaki.png");
-    }, "image/png");
-  }
-  canvasElementForSave.getContext('2d').clearRect(0, 0, canvasElement.width, canvasElement.height);
-}
-
-const hands = new Hands({
-  locateFile: (file) => {
-    // return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1/${file}`;
-    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1.1612238212/${file}`;
-  }
-})
-
-const options = {
-  maxNumHands: maxNumHands,
-  minDetectionConfidence: 0.7,
-  minTrackingConfidence: 0.7
-}
-
-hands.setOptions(options);
-hands.onResults(onResults);
-
-/**
- * Instantiate a camera. We'll feed each frame we receive into the solution.
- */
-const camera = new Camera(videoElement, {
-  onFrame: async () => {
-    await hands.send({ image: videoElement });
-  },
-  width: 1280,
-  height: 720
-});
-camera.start();
-
-function draw_calc(line) {
+const draw_calc = (line) =>{
   let retval = []
   if (line.length > 0) {
     let points2 = []
@@ -318,9 +292,53 @@ function draw_calc(line) {
   return retval;
 }
 
+const hands = new Hands({
+  locateFile: (file) => {
+    // return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1/${file}`;
+    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1.1612238212/${file}`;
+  }
+})
+
+const options = {
+  maxNumHands: MAX_NUM_HANDS,
+  minDetectionConfidence: 0.7,
+  minTrackingConfidence: 0.7
+}
+
+hands.setOptions(options);
+hands.onResults(onResults);
+
+/**
+ * Instantiate a camera. We'll feed each frame we receive into the solution.
+ */
+const camera = new Camera(videoElement, {
+  onFrame: async () => {
+    await hands.send({ image: videoElement });
+  },
+  width: 1280,
+  height: 720
+});
+camera.start();
+
+const save_paint = () => {
+  if (!(old_img_sum == null)) {
+    let target = get_new_img()
+    cv.flip(old_img_sum, target, 1);
+    cv.imshow(canvasElementForSave, target);
+  }
+
+  if (canvasElementForSave.toBlob) {
+    canvasElementForSave.toBlob((blob) => {
+      saveAs(blob, "oekaki.png");
+    }, "image/png");
+  }
+  canvasElementForSave.getContext('2d').clearRect(0, 0, canvasElement.width, canvasElement.height);
+}
+
 document.getElementById("back_button").onclick = () => {
   back_button_cnt += 1;
 }
+
 document.getElementById("save_button").onclick = () => {
   save_paint()
 }
