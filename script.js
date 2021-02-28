@@ -3,7 +3,7 @@ import { freelizer } from 'https://cdn.jsdelivr.net/npm/freelizer@1.0.0/index.mi
 const maxNumHands = 2;
 
 //連続だとみなす2点間の距離の上限
-const maxNorm = 170;
+const maxNorm = 200;
 //線の太さ
 const line_thickness = 5;
 
@@ -267,9 +267,7 @@ const save_paint = ()=>{
       saveAs(blob, "oekaki.png");
     }, "image/png");
   }
-
-  
-
+  canvasElementForSave.getContext('2d').clearRect(0, 0, canvasElement.width, canvasElement.height);
 }
 
 const hands = new Hands({
