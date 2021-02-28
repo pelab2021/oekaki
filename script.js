@@ -98,9 +98,10 @@ spinner.ontransitionend = () => {
 
 let now_line = [[], []];
 let old_imgs = [];
-
+let old_img_sum = null;
 
 const transparent_color = new cv.Scalar(0, 0, 0, 0);
+
 let lines = [[], []];
 let back_button_cnt = 0;
 
@@ -192,7 +193,13 @@ function onResults(results) {
 
   let result_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
   let now_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
+  if (old_img_sum == null){
+    old_img_sum = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
+  }
+
   now_img.erase_mode = document.getElementById("pen_mode").value=="eraser"
+
+  let old_imgs_changed = false;
 
   if (!is_empty) {
 
@@ -207,15 +214,10 @@ function onResults(results) {
       drawline(now_line[hand_i])
     }
   }
-  while (back_button_cnt > 0) {
-    old_imgs.splice(-1, 1);
-    back_button_cnt -= 1;
-  }
 
 
-  old_imgs.forEach((o_img) => {
-    draw_img(o_img, result_img)
-  });
+
+  draw_img(old_img_sum, result_img)
   draw_img(now_img, result_img)
   cv.imshow(canvasElement, result_img);
   result_img.delete()
@@ -226,9 +228,25 @@ function onResults(results) {
       now_line[hand_i].splice(0);
     }
     old_imgs.push(now_img);
+    old_imgs_changed = true
   } else {
     now_img.delete();
   }
+
+  while (back_button_cnt > 0) {
+    old_imgs.splice(-1, 1);
+    back_button_cnt -= 1;
+    old_imgs_changed = true
+  }
+
+  if(old_imgs_changed){
+    console.log("channged!")
+    old_img_sum.setTo(transparent_color)
+    old_imgs.forEach((o_img) => {
+      draw_img(o_img, old_img_sum)
+    });
+  }
+
   canvasCtx.restore();
 }
 
