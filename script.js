@@ -104,6 +104,9 @@ const transparent_color = new cv.Scalar(0, 0, 0, 0);
 
 let lines = [[], []];
 let back_button_cnt = 0;
+const get_new_img = ()=>{
+  return new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
+}
 
 const colors =
   [
@@ -118,7 +121,7 @@ const colors =
     new cv.Scalar(0, 0, 0, 255),
   ];  // RGBA
 
-function draw_img(src, dst) {
+const draw_img = (src, dst)=> {
   let channels = new cv.MatVector();
   cv.split(src, channels);
 
@@ -141,7 +144,7 @@ function draw_img(src, dst) {
 }
 
 
-function onResults(results) {
+const onResults = (results) =>{
   // Hide the spinner.
   document.body.classList.add('loaded');
 
@@ -190,6 +193,7 @@ function onResults(results) {
 
   let result_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
   let now_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
+
   if (old_img_sum == null){
     old_img_sum = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
   }
@@ -248,9 +252,11 @@ function onResults(results) {
 }
 
 
-function save_paint(){
+const save_paint = ()=>{
   if (!(old_img_sum == null)) {
-    cv.imshow(canvasElementForSave, old_img_sum);
+    let target = get_new_img()
+    cv.flip(old_img_sum, target, 1);
+    cv.imshow(canvasElementForSave, target);
   }
 
   if (canvasElementForSave.toBlob) {
