@@ -7,6 +7,23 @@ const maxNorm = 170;
 //線の太さ
 const line_thickness = 5;
 
+
+const videoElement =
+  document.getElementsByClassName('input_video')[0];
+const canvasElement =
+  document.getElementsByClassName('output_canvas')[0];
+const canvasElementForSave =
+  document.getElementsByClassName('output_canvas_for_save')[0];
+const controlsElement =
+  document.getElementsByClassName('control-panel')[0];
+const canvasCtx = canvasElement.getContext('2d');
+
+// Optimization: Turn off animated spinner after its hiding animation is done.
+const spinner = document.querySelector('.loading');
+spinner.ontransitionend = () => {
+  spinner.style.display = 'none';
+};
+
 let audio_data = {
   on: true,
   //0:白 1:赤 ... 8:黒
@@ -78,23 +95,6 @@ let fpsch= new fpsCheck((_fpsch)=>{
 })
 fpsch.start();
 
-const videoElement =
-  document.getElementsByClassName('input_video')[0];
-const canvasElement =
-  document.getElementsByClassName('output_canvas')[0];
-const controlsElement =
-  document.getElementsByClassName('control-panel')[0];
-const canvasCtx = canvasElement.getContext('2d');
-
-// We'll add this to our control panel later, but we'll save it here so we can
-// call tick() each time the graph runs.
-const fpsControl = new FPS();
-
-// Optimization: Turn off animated spinner after its hiding animation is done.
-const spinner = document.querySelector('.loading');
-spinner.ontransitionend = () => {
-  spinner.style.display = 'none';
-};
 
 let now_line = [[], []];
 let old_imgs = [];
@@ -146,9 +146,6 @@ function onResults(results) {
   document.body.classList.add('loaded');
 
   fpsch.tick()
-
-  // Update the frame rate.
-  // fpsControl.tick();
 
   canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -250,6 +247,25 @@ function onResults(results) {
   canvasCtx.restore();
 }
 
+
+function save_paint(){
+  if (!(old_img_sum == null)) {
+    cv.imshow(canvasElementForSave, old_img_sum);
+  }
+
+  if (canvasElementForSave.toBlob) {
+    // HTMLCanvasElement.toBlob() が使用できる場合
+
+    // canvasの図形をPNG形式のBlobオブジェクトに変換
+    canvasElementForSave.toBlob((blob)=> {
+      saveAs(blob, "oekaki.png");
+    }, "image/png");
+  }
+
+  
+
+}
+
 const hands = new Hands({
   locateFile: (file) => {
     // return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1/${file}`;
@@ -278,38 +294,6 @@ const camera = new Camera(videoElement, {
 });
 camera.start();
 
-// Present a control panel through which the user can manipulate the solution
-// options.
-// new ControlPanel(controlsElement, {
-//       selfieMode: true,
-//       maxNumHands: 2,
-//       minDetectionConfidence: 0.5,
-//       minTrackingConfidence: 0.5
-//     })
-//     .add([
-//       new StaticText({title: 'MediaPipe Hands'}),
-//       fpsControl,
-//       new Toggle({title: 'Selfie Mode', field: 'selfieMode'}),
-//       new Slider(
-//           {title: 'Max Number of Hands', field: 'maxNumHands', range: [1, 4], step: 1}),
-//       new Slider({
-//         title: 'Min Detection Confidence',
-//         field: 'minDetectionConfidence',
-//         range: [0, 1],
-//         step: 0.01
-//       }),
-//       new Slider({
-//         title: 'Min Tracking Confidence',
-//         field: 'minTrackingConfidence',
-//         range: [0, 1],
-//         step: 0.01
-//       }),
-//     ])
-//     .on(options => {
-//       videoElement.classList.toggle('selfie', options.selfieMode);
-//       hands.setOptions(options);
-//     });
-
 function draw_calc(line) {
   let retval = []
   if (line.length > 0) {
@@ -332,4 +316,7 @@ function draw_calc(line) {
 
 document.getElementById("back_button").onclick = () => {
   back_button_cnt += 1;
+}
+document.getElementById("save_button").onclick = () => {
+  save_paint()
 }

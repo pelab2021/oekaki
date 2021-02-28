@@ -56,6 +56,13 @@ body {
   left: 0;
   top: 0;
 }
+.output_canvas_for_save {
+  position: absolute;
+  height: 720px;
+  width: 1280px;
+  left: 0;
+  top: 0;
+}
 
 .logo {
   bottom: 10px;
@@ -130,4 +137,10 @@ body {
   top: 720px;
   color:black;
   white-space:nowrap;
+}
+#save_button{
+  position: absolute;
+  left: 200px;
+  top: 720px;
+  color:black;
 }

@@ -20,6 +20,11 @@
   <script src="https://cdn.jsdelivr.net/npm/freelizer@1.0.0/index.min.js" type="module"></script>
 
 
+  <!-- paintをsaveするためのライブラリ-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+
+  
+
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.1/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.1/control_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.1/drawing_utils.js" crossorigin="anonymous"></script>
@@ -44,6 +49,7 @@
     <!-- 鏡像 -->
     <video class="input_video" style="transform: scaleX(-1);"></video>
     <canvas class="output_canvas" width="1280px" height="720px" style="transform: scaleX(-1);"></canvas>
+    <canvas class="output_canvas_for_save" width="1280px" height="720px" style="transform: scaleX(-1);"></canvas>
     <div class="loading">
       <div class="spinner"></div>
       <div class="message">
@@ -58,6 +64,7 @@
     <option value="eraser">消しゴム</option>
   </select>
   <span id="fps_display">0 fps</span>
+  <button id="save_button"> save</button> 
   
   </div>
 <!-- partial -->
