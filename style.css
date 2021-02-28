@@ -117,3 +117,17 @@ body {
   font-size: 24px;
   position: absolute;
 }
+
+#pen_mode{
+  position: absolute;
+  left: 0;
+  top: 720px;
+}
+
+#fps_display{
+  position: absolute;
+  left: 100px;
+  top: 720px;
+  color:black;
+  white-space:nowrap;
+}

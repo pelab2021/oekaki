@@ -40,10 +40,43 @@ function audio_data_update(data) {
   }
 })()
 
+//0.5秒ごとにfpsを計算して値を更新する
+class fpsCheck{
+  constructor(callback = null){
+    this.counter = 0
+    this.intervalId = null;
+    this.fps = -1
+    //500ms
+    this.update_period = 500;
+    this.callback = callback
+    }
+  _update(){
+    this.fps = this.counter / (this.update_period/1000)
+    this.counter = 0
+    this.callback(this)
+  }
+  start(){
+    if (this.intervalId == null){
+      //0.5sごとにupdate
+      this.intervalId = setInterval(this._update.bind(this), this.update_period);
+    }
 
+  }
+  stop(){
+    if(!(this.intervalId== null)){
+      clearInterval(this.intervalId);
+    }
+    this.fps = -1;
+  }
+  tick(){
+    this.counter++;
+  }
+}
 
-
-
+let fpsch= new fpsCheck((_fpsch)=>{
+  document.getElementById("fps_display").innerHTML = _fpsch.fps.toString() + " fps"
+})
+fpsch.start();
 
 const videoElement =
   document.getElementsByClassName('input_video')[0];
@@ -67,7 +100,7 @@ let now_line = [[], []];
 let old_imgs = [];
 
 
-const bg_color = new cv.Scalar(0, 0, 0, 0);
+const transparent_color = new cv.Scalar(0, 0, 0, 0);
 let lines = [[], []];
 let back_button_cnt = 0;
 
@@ -90,17 +123,28 @@ function draw_img(src, dst) {
 
   let alpha = channels.get(3);
   let mask = new cv.Mat();
-  cv.threshold(alpha, mask, 0, 255, cv.THRESH_BINARY);
-  src.copyTo(dst, mask);
+
+  if(src.erase_mode){
+    let transparent_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
+    cv.threshold(alpha, mask, 0, 255, cv.THRESH_BINARY);
+    transparent_img.copyTo(dst, mask);
+    transparent_img.delete();
+  } else{
+    cv.threshold(alpha, mask, 0, 255, cv.THRESH_BINARY);
+    src.copyTo(dst, mask);
+  }
 
   channels.delete();
   alpha.delete();
   mask.delete();
 }
 
+
 function onResults(results) {
   // Hide the spinner.
   document.body.classList.add('loaded');
+
+  fpsch.tick()
 
   // Update the frame rate.
   // fpsControl.tick();
@@ -146,8 +190,10 @@ function onResults(results) {
   lines.forEach(check_empty)
   now_line.forEach(check_empty)
 
-  let result_image = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, bg_color);
-  let now_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, bg_color);
+  let result_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
+  let now_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
+  now_img.erase_mode = document.getElementById("pen_mode").value=="eraser"
+
   if (!is_empty) {
 
     for (let hand_i = 0; hand_i < maxNumHands; hand_i++) {
@@ -168,11 +214,11 @@ function onResults(results) {
 
 
   old_imgs.forEach((o_img) => {
-    draw_img(o_img, result_image)
+    draw_img(o_img, result_img)
   });
-  draw_img(now_img, result_image)
-  cv.imshow(canvasElement, result_image);
-  result_image.delete()
+  draw_img(now_img, result_img)
+  cv.imshow(canvasElement, result_img);
+  result_img.delete()
 
   if (!audio_data.on && !is_empty) {
     for (let hand_i = 0; hand_i < maxNumHands; hand_i++) {
