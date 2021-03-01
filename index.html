@@ -47,7 +47,6 @@
 </head>
 <body>
 <!-- partial:index.partial.html -->
-<div class="container">
     <!-- 鏡像 -->
     <video class="input_video" style="transform: scaleX(-1);"></video>
     <canvas class="output_canvas" width="1280px" height="720px"></canvas>
@@ -58,7 +57,6 @@
         Loading
       </div>
     </div>
-  </div>
   <button id="back_button"> 一つ前に戻る</button> 
   <select id="pen_mode"> 
     <option value="pen">ペン</option>
@@ -66,8 +64,12 @@
   </select>
   <span id="fps_display">0 fps</span>
   <button id="save_button"> save</button> 
+<div id="fullOverlay">
+  <div class="start_message">
+  Click to Start
+</div>
+</div>
   
-  </div>
 <!-- partial -->
   <!-- <script src="./const.js"></script> -->
   <script src="./script.js" type="module"></script>

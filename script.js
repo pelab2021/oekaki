@@ -242,6 +242,11 @@ document.getElementById("save_button").onclick = () => {
   save_paint()
 }
 
+document.getElementById("fullOverlay").onclick = () => {
+  document.getElementById("fullOverlay").remove()
+  audioCtx.resume()
+}
+
 
 
 
