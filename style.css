@@ -80,12 +80,6 @@ body {
   top: 20px;
 }
 
-.control-panel {
-  position: absolute;
-  left: 10px;
-  top: 10px;
-}
-
 .loading {
   display: flex;
   position: absolute;

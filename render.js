@@ -76,7 +76,7 @@ const draw_img = (src, dst) => {
     let mask = new cv.Mat();
 
     if (src.erase_mode) {
-        let transparent_img = new cv.Mat(canvasElement.height, canvasElement.width, cv.CV_8UC4, transparent_color);
+        let transparent_img = get_new_img()
         cv.threshold(alpha, mask, 0, 255, cv.THRESH_BINARY);
         transparent_img.copyTo(dst, mask);
         transparent_img.delete();
