@@ -3,7 +3,7 @@ import { freelizer } from 'https://cdn.jsdelivr.net/npm/freelizer@1.0.0/index.mi
 const MAX_NUM_HANDS = 2;
 
 //連続だとみなす2点間の距離の上限
-const MAX_NORM = 200;
+const MAX_NORM = 300;
 //線の太さ
 const LINE_THICKNESS = 5;
 const MIC_THRESHOLD = 0.01
@@ -29,6 +29,8 @@ let audio_data = {
   //0:白 1:赤 ... 8:黒
   color_index: 0
 }
+
+let back_button_cnt = 0
 
 let audioCtx = null
 let wavedata = null
@@ -103,15 +105,16 @@ let render_worker = null;
 let camera_img_from_mediapipe = null;
 
 
+let oekaki_img = null;
 if (window.Worker) {
   render_worker = new Worker("render.js")
 
   render_worker.onmessage = (e) => {
-    let result_img = e.data;
+    oekaki_img = e.data;
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     canvasCtx.drawImage(camera_img_from_mediapipe, 0, 0, canvasElement.width, canvasElement.height);
-    canvasCtx.putImageData(result_img,0,0)
+    canvasCtx.putImageData(oekaki_img,0,0)
     canvasCtx.restore();
   }
 
@@ -182,9 +185,11 @@ const onResults = (results) => {
     landmarks: hands_found? results.multiHandLandmarks:null,
     erase_mode :document.getElementById("pen_mode").value == "eraser",
     height:canvasElement.height,
-    width:canvasElement.width
+    width:canvasElement.width,
+    back_button_cnt: back_button_cnt
   }
   render_worker.postMessage(results_min);
+  back_button_cnt = 0
 }
 
 const hands = new Hands({
@@ -216,10 +221,9 @@ const camera = new Camera(videoElement, {
 camera.start();
 
 const save_paint = () => {
-  if (!(old_img_sum == null)) {
-    let target = get_new_img()
-    cv.flip(old_img_sum, target, 1);
-    cv.imshow(canvasElementForSave, target);
+
+  if (!(oekaki_img== null)) {
+    canvasElementForSave.getContext('2d').putImageData(oekaki_img,0,0)
   }
 
   if (canvasElementForSave.toBlob) {

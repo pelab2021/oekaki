@@ -37,8 +37,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1.1612238212/hands.js" crossorigin="anonymous"></script>
   <!-- verisonの情報は https://www.npmjs.com/package/@mediapipe/hands を参照-->
 
+  <!-- opencvはwebworker側に移った -->
   <!-- <script src="https://docs.opencv.org/master/opencv.js"></script> -->
-  <script src="https://docs.opencv.org/3.4.0/opencv.js"></script>
+  <!-- <script src="https://docs.opencv.org/3.4.0/opencv.js"></script> -->
   <script src="./cardinal-spline-js/curve_calc.min.js"></script>
 
 <link rel="stylesheet" href="./style.css">
@@ -49,7 +50,7 @@
 <div class="container">
     <!-- 鏡像 -->
     <video class="input_video" style="transform: scaleX(-1);"></video>
-    <canvas class="output_canvas" width="1280px" height="720px" style="transform: scaleX(-1);"></canvas>
+    <canvas class="output_canvas" width="1280px" height="720px"></canvas>
     <canvas class="output_canvas_for_save" width="1280px" height="720px"></canvas>
     <div class="loading">
       <div class="spinner"></div>

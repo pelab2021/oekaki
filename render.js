@@ -5,7 +5,6 @@ let old_img_sum = null;
 
 
 let lines = [[], []];
-let back_button_cnt = 0;
 let canvas_height = null;
 let canvas_width= null;
 
@@ -158,25 +157,28 @@ const onmessage_main = (results_min)=>{
     canvas_height= results_min.height
     canvas_width = results_min.width
     const audio_data = results_min.audio_data
+    let result_img_changed = false
+    
     if (audio_data.on) {
         if (results_min.hands_found) {
-        for (let index = 0; index < results_min.landmarks.length; index++) {
-            const isRightHand = results_min.isRightHand[index]
-            const landmarks = results_min.landmarks[index];
+            result_img_changed = true
+            for (let index = 0; index < results_min.landmarks.length; index++) {
+                const isRightHand = results_min.isRightHand[index]
+                const landmarks = results_min.landmarks[index];
 
-            const p = new cv.Point(landmarks[8].x * canvas_width, landmarks[8].y * canvas_height);
-            const hand_i = isRightHand ? 0 : 1;
+                const p = new cv.Point(landmarks[8].x * canvas_width, landmarks[8].y * canvas_height);
+                const hand_i = isRightHand ? 0 : 1;
 
-            const nl_len = now_line[hand_i].length;
-            if (now_line[hand_i].length > 0) {
-            const sq_norm = (now_line[hand_i][nl_len - 1].x - p.x) ** 2 + (now_line[hand_i][nl_len - 1].y - p.y) ** 2;
-            if (sq_norm > MAX_NORM ** 2) {
-                lines[hand_i].push(_.cloneDeep(now_line[hand_i]));
-                now_line[hand_i].splice(0);
+                const nl_len = now_line[hand_i].length;
+                if (now_line[hand_i].length > 0) {
+                const sq_norm = (now_line[hand_i][nl_len - 1].x - p.x) ** 2 + (now_line[hand_i][nl_len - 1].y - p.y) ** 2;
+                if (sq_norm > MAX_NORM ** 2) {
+                    lines[hand_i].push(_.cloneDeep(now_line[hand_i]));
+                    now_line[hand_i].splice(0);
+                }
+                }
+                now_line[hand_i].push(p);
             }
-            }
-            now_line[hand_i].push(p);
-        }
         }
     }
 
@@ -215,9 +217,13 @@ const onmessage_main = (results_min)=>{
     draw_img(old_img_sum, result_img)
     draw_img(now_img, result_img)
 
-    postMessage(imageDataFromMat(result_img))
+    let target = get_new_img()
+    //左右反転
+    cv.flip(result_img, target, 1);
+    postMessage(imageDataFromMat(target))
 
     result_img.delete()
+    target.delete()
 
     if (!audio_data.on && !is_empty) {
         for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
@@ -230,9 +236,9 @@ const onmessage_main = (results_min)=>{
         now_img.delete();
     }
 
-    while (back_button_cnt > 0) {
+    while (results_min.back_button_cnt > 0) {
         old_imgs.splice(-1, 1);
-        back_button_cnt -= 1;
+        results_min.back_button_cnt -= 1;
         old_imgs_changed = true
     }
 
