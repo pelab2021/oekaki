@@ -1,22 +1,14 @@
 import { freelizer } from 'https://cdn.jsdelivr.net/npm/freelizer@1.0.0/index.min.js'
 
 const MAX_NUM_HANDS = 2;
-
-//連続だとみなす2点間の距離の上限
-const MAX_NORM = 300;
-//線の太さ
-const LINE_THICKNESS = 5;
 const MIC_THRESHOLD = 0.01
 
-const videoElement =
-  document.getElementsByClassName('input_video')[0];
-const canvasElement =
-  document.getElementsByClassName('output_canvas')[0];
-const canvasElementForSave =
-  document.getElementsByClassName('output_canvas_for_save')[0];
-const controlsElement =
-  document.getElementsByClassName('control-panel')[0];
+const videoElement = document.getElementsByClassName('input_video')[0];
+const canvasElement = document.getElementsByClassName('output_canvas')[0];
+const canvasElementForSave = document.getElementsByClassName('output_canvas_for_save')[0];
+const controlsElement = document.getElementsByClassName('control-panel')[0];
 const canvasCtx = canvasElement.getContext('2d');
+const loudnessElement = document.getElementById("loudness")
 
 // Optimization: Turn off animated spinner after its hiding animation is done.
 const spinner = document.querySelector('.loading');
@@ -39,6 +31,7 @@ let analyser = null
 const audio_init = async () => {
   audioCtx = new (window.AudioContext
     || window.webkitAudioContext || window.mozAudioContext)();
+
   analyser = audioCtx.createAnalyser();
   wavedata = new Float32Array(analyser.fftSize);
   analyser.fftSize = 512;
@@ -66,6 +59,8 @@ const audio_data_update = (data) => {
   if (analyser != null) {
     analyser.getFloatTimeDomainData(wavedata);
     const max = wavedata.reduce((a, b) => Math.max(a, b))
+    loudnessElement.innerHTML = max
+    console.log(max)
     on = max > MIC_THRESHOLD
   }
   if (on && Object.keys(data).includes("frequency") && data["frequency"] != 21.55425219941349) {
@@ -242,9 +237,25 @@ document.getElementById("save_button").onclick = () => {
   save_paint()
 }
 
-document.getElementById("fullOverlay").onclick = () => {
+document.getElementById("fullOverlay").onclick = async () => {
   document.getElementById("fullOverlay").remove()
-  audioCtx.resume()
+  await audioCtx.resume()
+  console.log("audio context is resumed")
+  // await audio_init()
+  // console.log("audio_init() is called")
+}
+let susresBtn = document.getElementById("susresBtn")
+
+susresBtn.onclick = function() {
+  if(audioCtx.state === 'running') {
+    audioCtx.suspend().then(function() {
+      susresBtn.textContent = 'Resume context';
+    });
+  } else if(audioCtx.state === 'suspended') {
+    audioCtx.resume().then(function() {
+      susresBtn.textContent = 'Suspend context';
+    });
+  }
 }
 
 

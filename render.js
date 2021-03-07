@@ -1,8 +1,14 @@
-self.importScripts("https://docs.opencv.org/3.4.0/opencv.js","const.js", "./cardinal-spline-js/curve_calc.min.js","https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js")
+self.importScripts("https://docs.opencv.org/3.4.0/opencv.js", "./cardinal-spline-js/curve_calc.min.js","https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js")
 let now_line = [[], []];
 let old_imgs = [];
 let old_img_sum = null;
 
+
+const MAX_NUM_HANDS = 2;
+//連続だとみなす2点間の距離の上限
+const MAX_NORM = 200;
+//線の太さ
+const LINE_THICKNESS = 5;
 
 let lines = [[], []];
 let canvas_height = null;

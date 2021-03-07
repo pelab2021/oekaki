@@ -31,12 +31,12 @@ body {
   overflow: hidden;
 }
 
-/* .container {
+.container {
   position: absolute;
   background-color: #596e73;
   height: 720px;
   width: 1280px;
-} */
+}
 
 .input_video {
   position: relative;
@@ -136,6 +136,12 @@ body {
   top: 0;
 }
 
+#save_button{
+  position: absolute;
+  left: 200px;
+  top: 0;
+  color:black;
+}
 #fps_display{
   position: absolute;
   left: 300px;
@@ -144,11 +150,19 @@ body {
   background-color: white;
   white-space:nowrap;
 }
-#save_button{
+#susresBtn{
   position: absolute;
-  left: 200px;
+  left: 350px;
   top: 0;
   color:black;
+}
+#loudness{
+  position: absolute;
+  left: 500px;
+  top: 0;
+  color:black;
+  background-color: white;
+  white-space:nowrap;
 }
 #start_button{
   position: absolute;
