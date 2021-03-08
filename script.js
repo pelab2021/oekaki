@@ -60,7 +60,6 @@ const audio_data_update = (data) => {
     analyser.getFloatTimeDomainData(wavedata);
     const max = wavedata.reduce((a, b) => Math.max(a, b))
     loudnessElement.innerHTML = max
-    console.log(max)
     on = max > MIC_THRESHOLD
   }
   if (on && Object.keys(data).includes("frequency") && data["frequency"] != 21.55425219941349) {
@@ -172,7 +171,7 @@ const onResults = (results) => {
         return classification.label === 'Right';
     })
     :null;
-  const results_min = {
+  const render_data = {
     msg:"main",
     audio_data: audio_data,
     hands_found: hands_found,
@@ -183,7 +182,7 @@ const onResults = (results) => {
     width:canvasElement.width,
     back_button_cnt: back_button_cnt
   }
-  render_worker.postMessage(results_min);
+  render_worker.postMessage(render_data);
   back_button_cnt = 0
 }
 
@@ -240,8 +239,8 @@ document.getElementById("save_button").onclick = () => {
 document.getElementById("fullOverlay").onclick = async () => {
   document.getElementById("fullOverlay").remove()
   await audioCtx.resume()
-  console.log("audio context is resumed")
   await audio_init()
+  console.log("audio context is resumed")
   // console.log("audio_init() is called")
 }
 // let susresBtn = document.getElementById("susresBtn")

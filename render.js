@@ -156,21 +156,21 @@ onmessage = (e)=>{
             console.error(e)
     }
 }
-const onmessage_main = (results_min)=>{
+const onmessage_main = (render_data)=>{
     if(!opencv_loaded){
         return
     }
-    canvas_height= results_min.height
-    canvas_width = results_min.width
-    const audio_data = results_min.audio_data
+    canvas_height= render_data.height
+    canvas_width = render_data.width
+    const audio_data = render_data.audio_data
     let result_img_changed = false
     
     if (audio_data.on) {
-        if (results_min.hands_found) {
+        if (render_data.hands_found) {
             result_img_changed = true
-            for (let index = 0; index < results_min.landmarks.length; index++) {
-                const isRightHand = results_min.isRightHand[index]
-                const landmarks = results_min.landmarks[index];
+            for (let index = 0; index < render_data.landmarks.length; index++) {
+                const isRightHand = render_data.isRightHand[index]
+                const landmarks = render_data.landmarks[index];
 
                 const p = new cv.Point(landmarks[8].x * canvas_width, landmarks[8].y * canvas_height);
                 const hand_i = isRightHand ? 0 : 1;
@@ -202,7 +202,7 @@ const onmessage_main = (results_min)=>{
         old_img_sum = get_new_img()
     }
 
-    now_img.erase_mode = results_min.erase_mode
+    now_img.erase_mode = render_data.erase_mode
 
     let old_imgs_changed = false;
 
@@ -223,13 +223,13 @@ const onmessage_main = (results_min)=>{
     draw_img(old_img_sum, result_img)
     draw_img(now_img, result_img)
 
-    let target = get_new_img()
+    let send_img = get_new_img()
     //左右反転
-    cv.flip(result_img, target, 1);
-    postMessage(imageDataFromMat(target))
+    cv.flip(result_img, send_img, 1);
+    postMessage(imageDataFromMat(send_img))
 
     result_img.delete()
-    target.delete()
+    send_img.delete()
 
     if (!audio_data.on && !is_empty) {
         for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
@@ -242,9 +242,9 @@ const onmessage_main = (results_min)=>{
         now_img.delete();
     }
 
-    while (results_min.back_button_cnt > 0) {
+    while (render_data.back_button_cnt > 0) {
         old_imgs.splice(-1, 1);
-        results_min.back_button_cnt -= 1;
+        render_data.back_button_cnt -= 1;
         old_imgs_changed = true
     }
 
