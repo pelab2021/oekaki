@@ -150,12 +150,12 @@ body {
   background-color: white;
   white-space:nowrap;
 }
-#susresBtn{
+/* #susresBtn{
   position: absolute;
   left: 350px;
   top: 0;
   color:black;
-}
+} */
 #loudness{
   position: absolute;
   left: 500px;

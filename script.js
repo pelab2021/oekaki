@@ -241,22 +241,22 @@ document.getElementById("fullOverlay").onclick = async () => {
   document.getElementById("fullOverlay").remove()
   await audioCtx.resume()
   console.log("audio context is resumed")
-  // await audio_init()
+  await audio_init()
   // console.log("audio_init() is called")
 }
-let susresBtn = document.getElementById("susresBtn")
+// let susresBtn = document.getElementById("susresBtn")
 
-susresBtn.onclick = function() {
-  if(audioCtx.state === 'running') {
-    audioCtx.suspend().then(function() {
-      susresBtn.textContent = 'Resume context';
-    });
-  } else if(audioCtx.state === 'suspended') {
-    audioCtx.resume().then(function() {
-      susresBtn.textContent = 'Suspend context';
-    });
-  }
-}
+// susresBtn.onclick = function() {
+//   if(audioCtx.state === 'running') {
+//     audioCtx.suspend().then(function() {
+//       susresBtn.textContent = 'Resume context';
+//     });
+//   } else if(audioCtx.state === 'suspended') {
+//     audioCtx.resume().then(function() {
+//       susresBtn.textContent = 'Suspend context';
+//     });
+//   }
+// }
 
 
 
