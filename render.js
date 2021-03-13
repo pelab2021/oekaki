@@ -163,19 +163,22 @@ const onmessage_main = (render_data) => {
   canvas_height = render_data.height
   canvas_width = render_data.width
   const audio_data = render_data.audio_data
-  let result_img_changed = false
+  let result_img = get_new_img()
+  let now_img = get_new_img()
+  hand_points = []
 
-  if (audio_data.on) {
-    if (render_data.hands_found) {
-      result_img_changed = true
-      for (let index = 0; index < render_data.landmarks.length; index++) {
-        const isRightHand = render_data.isRightHand[index]
-        const landmarks = render_data.landmarks[index];
+  if (render_data.hands_found) {
+    for (let index = 0; index < render_data.landmarks.length; index++) {
+      const isRightHand = render_data.isRightHand[index]
+      const landmarks = render_data.landmarks[index];
 
-        const p = new cv.Point(landmarks[8].x * canvas_width, landmarks[8].y * canvas_height);
-        const hand_i = isRightHand ? 0 : 1;
+      const p = new cv.Point(landmarks[8].x * canvas_width, landmarks[8].y * canvas_height);
+      const hand_i = isRightHand ? 0 : 1;
 
-        const nl_len = now_line[hand_i].length;
+      const nl_len = now_line[hand_i].length;
+      hand_points.push(p)
+      if (audio_data.on) {
+        //2点以上ある場合は距離判定
         if (now_line[hand_i].length > 0) {
           const sq_norm = (now_line[hand_i][nl_len - 1].x - p.x) ** 2 + (now_line[hand_i][nl_len - 1].y - p.y) ** 2;
           if (sq_norm > MAX_NORM ** 2) {
@@ -195,8 +198,6 @@ const onmessage_main = (render_data) => {
   lines.forEach(check_empty)
   now_line.forEach(check_empty)
 
-  let result_img = get_new_img()
-  let now_img = get_new_img()
 
   if (old_img_sum == null) {
     old_img_sum = get_new_img()
@@ -222,6 +223,10 @@ const onmessage_main = (render_data) => {
 
   draw_img(old_img_sum, result_img)
   draw_img(now_img, result_img)
+
+  hand_points.forEach((p)=>{
+    cv.circle(result_img, p, 5, new cv.Scalar(255,0,0,255), 5);
+  })
 
   let send_img = get_new_img()
   //左右反転
