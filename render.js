@@ -1,6 +1,7 @@
 self.importScripts("https://docs.opencv.org/3.4.0/opencv.js", "./cardinal-spline-js/curve_calc.min.js", "https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js")
 let now_line = [[], []];
 let old_imgs = [];
+let next_imgs = [];
 let old_img_sum = null;
 
 
@@ -166,6 +167,7 @@ const onmessage_main = (render_data) => {
   let result_img = get_new_img()
   let now_img = get_new_img()
   hand_points = []
+  let is_inserted = false
 
   if (render_data.hands_found) {
     for (let index = 0; index < render_data.landmarks.length; index++) {
@@ -243,14 +245,28 @@ const onmessage_main = (render_data) => {
     }
     old_imgs.push(now_img);
     old_imgs_changed = true
+    is_inserted = true
   } else {
     now_img.delete();
   }
 
-  while (render_data.back_button_cnt > 0) {
-    old_imgs.splice(-1, 1);
-    render_data.back_button_cnt -= 1;
+  if(render_data.back_button_cnt > 0) {
+    let deleted = old_imgs.splice(-1, render_data.back_button_cnt);
+    next_imgs = deleted.concat(next_imgs)
     old_imgs_changed = true
+  }
+  if(render_data.forward_button_cnt> 0) {
+    let add_imgs = next_imgs.splice(0, render_data.forward_button_cnt);
+    old_imgs = old_imgs.concat(add_imgs)
+    old_imgs_changed = true
+  }
+
+  if(render_data.clear_flag){
+    let erase_img = new cv.Mat(canvas_height, canvas_width, cv.CV_8UC4, new cv.Scalar(255,255,255,255));
+    erase_img.erase_mode = true
+    old_imgs.push(erase_img);
+    old_imgs_changed = true
+    is_inserted = true
   }
 
   if (old_imgs_changed) {
@@ -259,4 +275,5 @@ const onmessage_main = (render_data) => {
       draw_img(o_img, old_img_sum)
     });
   }
+  if(is_inserted) next_imgs.splice(0);
 }

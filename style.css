@@ -130,15 +130,28 @@ body {
   white-space:nowrap;
 }
 
+#forward_button{
+  position: absolute;
+  left: 65px;
+  top: 0;
+  white-space:nowrap;
+}
+
 #pen_mode{
   position: absolute;
-  left: 100px;
+  left: 130px;
   top: 0;
 }
 
 #save_button{
   position: absolute;
-  left: 200px;
+  left: 205px;
+  top: 0;
+  color:black;
+}
+#clear_button{
+  position: absolute;
+  left: 250px;
   top: 0;
   color:black;
 }

@@ -23,6 +23,8 @@ let audio_data = {
 }
 
 let back_button_cnt = 0
+let forward_button_cnt = 0
+let clear_flag = false
 
 let audioCtx = null
 let wavedata = null
@@ -45,6 +47,7 @@ window.onload = async () => {
   audio_init()
 }
 
+let on_pre = false
 const audio_data_update = (data) => {
   // data例
   //{
@@ -65,7 +68,8 @@ const audio_data_update = (data) => {
   if (on && Object.keys(data).includes("frequency") && data["frequency"] != 21.55425219941349) {
     audio_data.color_index = ((data.note.charCodeAt(0) - 65) + data.octave * 8) % 9;
   }
-  audio_data.on = on
+  audio_data.on = on | on_pre
+  on_pre = on
 }
 
   ; (async () => {
@@ -180,10 +184,14 @@ const onResults = (results) => {
     erase_mode: document.getElementById("pen_mode").value == "eraser",
     height: canvasElement.height,
     width: canvasElement.width,
-    back_button_cnt: back_button_cnt
+    back_button_cnt: back_button_cnt,
+    forward_button_cnt: forward_button_cnt,
+    clear_flag: clear_flag
   }
   render_worker.postMessage(render_data);
   back_button_cnt = 0
+  forward_button_cnt = 0
+  clear_flag = false
 }
 
 const hands = new Hands({
@@ -231,9 +239,16 @@ const save_paint = () => {
 document.getElementById("back_button").onclick = () => {
   back_button_cnt += 1;
 }
+document.getElementById("forward_button").onclick = () => {
+  forward_button_cnt += 1;
+}
 
 document.getElementById("save_button").onclick = () => {
   save_paint()
+}
+
+document.getElementById("clear_button").onclick = () => {
+  clear_flag = true;
 }
 
 document.getElementById("fullOverlay").onclick = async () => {
