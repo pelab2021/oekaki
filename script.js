@@ -1,4 +1,4 @@
-import { freelizer } from 'https://cdn.jsdelivr.net/npm/freelizer@1.0.0/index.min.js'
+import {freelizer} from 'https://cdn.jsdelivr.net/npm/freelizer@1.0.0/index.min.js'
 
 const MAX_NUM_HANDS = 2;
 const MIC_THRESHOLD = 0.01
@@ -36,7 +36,7 @@ const audio_init = async () => {
   wavedata = new Float32Array(analyser.fftSize);
   analyser.fftSize = 512;
   // analyser.connect(audioCtx.destination)
-  const mic_stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const mic_stream = await navigator.mediaDevices.getUserMedia({audio: true});
   const mic_input = audioCtx.createMediaStreamSource(mic_stream);
   mic_input.connect(analyser);
 }
@@ -68,15 +68,15 @@ const audio_data_update = (data) => {
   audio_data.on = on
 }
 
-;(async () => {
-  try {
-    const { start, stop, subscribe, unsubscribe } = await freelizer()
-    start()
-    subscribe(audio_data_update)
-  } catch (error) {
-    console.error(error);
-  }
-})()
+  ; (async () => {
+    try {
+      const {start, stop, subscribe, unsubscribe} = await freelizer()
+      start()
+      subscribe(audio_data_update)
+    } catch (error) {
+      console.error(error);
+    }
+  })()
 
 // // local fileを対象にworkerを起動すると出るエラーのための対処
 // // https://tshino.hatenablog.com/entry/20180106/1515218776
@@ -108,11 +108,11 @@ if (window.Worker) {
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     canvasCtx.drawImage(camera_img_from_mediapipe, 0, 0, canvasElement.width, canvasElement.height);
-    canvasCtx.putImageData(oekaki_img,0,0)
+    canvasCtx.putImageData(oekaki_img, 0, 0)
     canvasCtx.restore();
   }
 
-}else{
+} else {
   console.err("can't find window.Worker.");
 }
 //0.5秒ごとにfpsを計算して値を更新する
@@ -155,31 +155,31 @@ fpsch.start();
 
 
 
-let onresults_first=true
+let onresults_first = true
 const onResults = (results) => {
-  if (onresults_first){
+  if (onresults_first) {
     // Hide the spinner.
     document.body.classList.add('loaded');
-    onresults_first= false
+    onresults_first = false
   }
 
   fpsch.tick()
   camera_img_from_mediapipe = results.image
   const hands_found = results.multiHandLandmarks && results.multiHandedness
-  const isRightHand = hands_found? 
-  results.multiHandedness.map((classification, index, array)=>{
-        return classification.label === 'Right';
+  const isRightHand = hands_found ?
+    results.multiHandedness.map((classification, index, array) => {
+      return classification.label === 'Right';
     })
-    :null;
+    : null;
   const render_data = {
-    msg:"main",
+    msg: "main",
     audio_data: audio_data,
     hands_found: hands_found,
     isRightHand: isRightHand,
-    landmarks: hands_found? results.multiHandLandmarks:null,
-    erase_mode :document.getElementById("pen_mode").value == "eraser",
-    height:canvasElement.height,
-    width:canvasElement.width,
+    landmarks: hands_found ? results.multiHandLandmarks : null,
+    erase_mode: document.getElementById("pen_mode").value == "eraser",
+    height: canvasElement.height,
+    width: canvasElement.width,
     back_button_cnt: back_button_cnt
   }
   render_worker.postMessage(render_data);
@@ -207,7 +207,7 @@ hands.onResults(onResults);
  */
 const camera = new Camera(videoElement, {
   onFrame: async () => {
-    await hands.send({ image: videoElement });
+    await hands.send({image: videoElement});
   },
   width: 1280,
   height: 720
@@ -216,8 +216,8 @@ camera.start();
 
 const save_paint = () => {
 
-  if (!(oekaki_img== null)) {
-    canvasElementForSave.getContext('2d').putImageData(oekaki_img,0,0)
+  if (!(oekaki_img == null)) {
+    canvasElementForSave.getContext('2d').putImageData(oekaki_img, 0, 0)
   }
 
   if (canvasElementForSave.toBlob) {

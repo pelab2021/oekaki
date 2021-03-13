@@ -1,4 +1,4 @@
-self.importScripts("https://docs.opencv.org/3.4.0/opencv.js", "./cardinal-spline-js/curve_calc.min.js","https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js")
+self.importScripts("https://docs.opencv.org/3.4.0/opencv.js", "./cardinal-spline-js/curve_calc.min.js", "https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js")
 let now_line = [[], []];
 let old_imgs = [];
 let old_img_sum = null;
@@ -12,7 +12,7 @@ const LINE_THICKNESS = 5;
 
 let lines = [[], []];
 let canvas_height = null;
-let canvas_width= null;
+let canvas_width = null;
 
 let transparent_color = null
 let colors = null
@@ -26,28 +26,28 @@ let opencv_loaded = false
  */
 function waitForOpencv(callbackFn, waitTimeMs = 30000, stepTimeMs = 100) {
   if (cv.Mat) {
-      callbackFn(true)
-  }else{
+    callbackFn(true)
+  } else {
     let timeSpentMs = 0
     const interval = setInterval(() => {
-        const limitReached = timeSpentMs > waitTimeMs
-        if (cv.Mat || limitReached) {
+      const limitReached = timeSpentMs > waitTimeMs
+      if (cv.Mat || limitReached) {
         clearInterval(interval)
         return callbackFn(!limitReached)
-        } else {
+      } else {
         timeSpentMs += stepTimeMs
-        }
+      }
     }, stepTimeMs)
   }
 }
 
 
-const init = (success)=>{
-    if(success){
+const init = (success) => {
+  if (success) {
 
     transparent_color = new cv.Scalar(0, 0, 0, 0);
     colors =
-    [
+      [
         new cv.Scalar(255, 255, 255, 255),
         new cv.Scalar(255, 0, 0, 255),
         new cv.Scalar(255, 165, 0, 255),
@@ -57,64 +57,64 @@ const init = (success)=>{
         new cv.Scalar(0, 0, 255, 255),
         new cv.Scalar(128, 0, 128, 255),
         new cv.Scalar(0, 0, 0, 255),
-    ];  // RGBA
+      ];  // RGBA
     opencv_loaded = true
     console.log("Opencv.js loaded")
-    }else{
+  } else {
     console.err("Opencv.js load failed")
 
-    }
+  }
 }
-    
+
 
 waitForOpencv(init)
 
 const get_new_img = () => {
-    return new cv.Mat(canvas_height, canvas_width, cv.CV_8UC4, transparent_color);
+  return new cv.Mat(canvas_height, canvas_width, cv.CV_8UC4, transparent_color);
 }
 
 
 const draw_img = (src, dst) => {
-    let channels = new cv.MatVector();
-    cv.split(src, channels);
+  let channels = new cv.MatVector();
+  cv.split(src, channels);
 
-    let alpha = channels.get(3);
-    let mask = new cv.Mat();
+  let alpha = channels.get(3);
+  let mask = new cv.Mat();
 
-    if (src.erase_mode) {
-        let transparent_img = get_new_img()
-        cv.threshold(alpha, mask, 0, 255, cv.THRESH_BINARY);
-        transparent_img.copyTo(dst, mask);
-        transparent_img.delete();
-    } else {
-        cv.threshold(alpha, mask, 0, 255, cv.THRESH_BINARY);
-        src.copyTo(dst, mask);
-    }
+  if (src.erase_mode) {
+    let transparent_img = get_new_img()
+    cv.threshold(alpha, mask, 0, 255, cv.THRESH_BINARY);
+    transparent_img.copyTo(dst, mask);
+    transparent_img.delete();
+  } else {
+    cv.threshold(alpha, mask, 0, 255, cv.THRESH_BINARY);
+    src.copyTo(dst, mask);
+  }
 
-    channels.delete();
-    alpha.delete();
-    mask.delete();
+  channels.delete();
+  alpha.delete();
+  mask.delete();
 }
-const draw_calc = (line) =>{
-    let retval = []
-    if (line.length > 0) {
-        let points2 = []
-        line.forEach((p) => {
-        points2.push(p.x)
-        points2.push(p.y)
-        })
-        let tension = 0.5;
-        let numOfSeg = 20;
-        let close = false;
-        let splinePoints = getCurvePoints(points2, tension, numOfSeg, close);
-        for (let i = 0; i < splinePoints.length / 2; i++) {
-        let p = new cv.Point(splinePoints[2 * i], splinePoints[2 * i + 1])
-        retval.push(p)
-        }
+const draw_calc = (line) => {
+  let retval = []
+  if (line.length > 0) {
+    let points2 = []
+    line.forEach((p) => {
+      points2.push(p.x)
+      points2.push(p.y)
+    })
+    let tension = 0.5;
+    let numOfSeg = 20;
+    let close = false;
+    let splinePoints = getCurvePoints(points2, tension, numOfSeg, close);
+    for (let i = 0; i < splinePoints.length / 2; i++) {
+      let p = new cv.Point(splinePoints[2 * i], splinePoints[2 * i + 1])
+      retval.push(p)
     }
-    return retval;
+  }
+  return retval;
 }
-const imageDataFromMat = (mat)=>{
+const imageDataFromMat = (mat) => {
   // convert the mat type to cv.CV_8U
   const img = new cv.Mat()
   const depth = mat.type() % 8
@@ -147,111 +147,111 @@ const imageDataFromMat = (mat)=>{
   return clampedArray
 }
 
-onmessage = (e)=>{
-    switch(e.data.msg){
-        case "main":
-            onmessage_main(e.data)
-            break;
-        default:
-            console.error(e)
-    }
+onmessage = (e) => {
+  switch (e.data.msg) {
+    case "main":
+      onmessage_main(e.data)
+      break;
+    default:
+      console.error(e)
+  }
 }
-const onmessage_main = (render_data)=>{
-    if(!opencv_loaded){
-        return
-    }
-    canvas_height= render_data.height
-    canvas_width = render_data.width
-    const audio_data = render_data.audio_data
-    let result_img_changed = false
-    
-    if (audio_data.on) {
-        if (render_data.hands_found) {
-            result_img_changed = true
-            for (let index = 0; index < render_data.landmarks.length; index++) {
-                const isRightHand = render_data.isRightHand[index]
-                const landmarks = render_data.landmarks[index];
+const onmessage_main = (render_data) => {
+  if (!opencv_loaded) {
+    return
+  }
+  canvas_height = render_data.height
+  canvas_width = render_data.width
+  const audio_data = render_data.audio_data
+  let result_img_changed = false
 
-                const p = new cv.Point(landmarks[8].x * canvas_width, landmarks[8].y * canvas_height);
-                const hand_i = isRightHand ? 0 : 1;
+  if (audio_data.on) {
+    if (render_data.hands_found) {
+      result_img_changed = true
+      for (let index = 0; index < render_data.landmarks.length; index++) {
+        const isRightHand = render_data.isRightHand[index]
+        const landmarks = render_data.landmarks[index];
 
-                const nl_len = now_line[hand_i].length;
-                if (now_line[hand_i].length > 0) {
-                const sq_norm = (now_line[hand_i][nl_len - 1].x - p.x) ** 2 + (now_line[hand_i][nl_len - 1].y - p.y) ** 2;
-                if (sq_norm > MAX_NORM ** 2) {
-                    lines[hand_i].push(_.cloneDeep(now_line[hand_i]));
-                    now_line[hand_i].splice(0);
-                }
-                }
-                now_line[hand_i].push(p);
-            }
+        const p = new cv.Point(landmarks[8].x * canvas_width, landmarks[8].y * canvas_height);
+        const hand_i = isRightHand ? 0 : 1;
+
+        const nl_len = now_line[hand_i].length;
+        if (now_line[hand_i].length > 0) {
+          const sq_norm = (now_line[hand_i][nl_len - 1].x - p.x) ** 2 + (now_line[hand_i][nl_len - 1].y - p.y) ** 2;
+          if (sq_norm > MAX_NORM ** 2) {
+            lines[hand_i].push(_.cloneDeep(now_line[hand_i]));
+            now_line[hand_i].splice(0);
+          }
         }
+        now_line[hand_i].push(p);
+      }
     }
+  }
 
-    let is_empty = true;
-    const check_empty = (line) => {
-        is_empty = is_empty && (line.length == 0);
-    };
-    lines.forEach(check_empty)
-    now_line.forEach(check_empty)
+  let is_empty = true;
+  const check_empty = (line) => {
+    is_empty = is_empty && (line.length == 0);
+  };
+  lines.forEach(check_empty)
+  now_line.forEach(check_empty)
 
-    let result_img = get_new_img()
-    let now_img = get_new_img()
+  let result_img = get_new_img()
+  let now_img = get_new_img()
 
-    if (old_img_sum == null) {
-        old_img_sum = get_new_img()
-    }
+  if (old_img_sum == null) {
+    old_img_sum = get_new_img()
+  }
 
-    now_img.erase_mode = render_data.erase_mode
+  now_img.erase_mode = render_data.erase_mode
 
-    let old_imgs_changed = false;
+  let old_imgs_changed = false;
 
-    if (!is_empty) {
+  if (!is_empty) {
 
-        for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
-        const drawline = (line) => {
-            const line_points = draw_calc(line);
-            for (let i = 0; i < line_points.length - 1; i++) {
-            cv.line(now_img, line_points[i], line_points[i + 1], colors[audio_data.color_index], LINE_THICKNESS, cv.LINE_8, 0);
-            }
-        };
-        lines[hand_i].forEach(drawline);
-        drawline(now_line[hand_i])
+    for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
+      const drawline = (line) => {
+        const line_points = draw_calc(line);
+        for (let i = 0; i < line_points.length - 1; i++) {
+          cv.line(now_img, line_points[i], line_points[i + 1], colors[audio_data.color_index], LINE_THICKNESS, cv.LINE_8, 0);
         }
+      };
+      lines[hand_i].forEach(drawline);
+      drawline(now_line[hand_i])
     }
+  }
 
-    draw_img(old_img_sum, result_img)
-    draw_img(now_img, result_img)
+  draw_img(old_img_sum, result_img)
+  draw_img(now_img, result_img)
 
-    let send_img = get_new_img()
-    //左右反転
-    cv.flip(result_img, send_img, 1);
-    postMessage(imageDataFromMat(send_img))
+  let send_img = get_new_img()
+  //左右反転
+  cv.flip(result_img, send_img, 1);
+  postMessage(imageDataFromMat(send_img))
 
-    result_img.delete()
-    send_img.delete()
+  result_img.delete()
+  send_img.delete()
 
-    if (!audio_data.on && !is_empty) {
-        for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
-        lines[hand_i].splice(0)
-        now_line[hand_i].splice(0);
-        }
-        old_imgs.push(now_img);
-        old_imgs_changed = true
-    } else {
-        now_img.delete();
+  if (!audio_data.on && !is_empty) {
+    for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
+      lines[hand_i].splice(0)
+      now_line[hand_i].splice(0);
     }
+    old_imgs.push(now_img);
+    old_imgs_changed = true
+  } else {
+    now_img.delete();
+  }
 
-    while (render_data.back_button_cnt > 0) {
-        old_imgs.splice(-1, 1);
-        render_data.back_button_cnt -= 1;
-        old_imgs_changed = true
-    }
+  while (render_data.back_button_cnt > 0) {
+    old_imgs.splice(-1, 1);
+    render_data.back_button_cnt -= 1;
+    old_imgs_changed = true
+  }
 
-    if (old_imgs_changed) {
-        old_img_sum.setTo(transparent_color)
-        old_imgs.forEach((o_img) => {
-        draw_img(o_img, old_img_sum)
-        });
-    }
+  if (old_imgs_changed) {
+    old_img_sum.setTo(transparent_color)
+    old_imgs.forEach((o_img) => {
+      draw_img(o_img, old_img_sum)
+    });
+  }
 }
