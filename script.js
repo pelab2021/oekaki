@@ -177,7 +177,7 @@ const onResults = (results) => {
     hands_found: hands_found,
     isRightHand: isRightHand,
     landmarks: hands_found? results.multiHandLandmarks:null,
-    erase_mode :document.getElementById("pen_mode").value == "eraser",
+    erase_mode: document.getElementById("eraser").className !== "invalid",
     height:canvasElement.height,
     width:canvasElement.width,
     back_button_cnt: back_button_cnt
@@ -234,6 +234,15 @@ document.getElementById("back_button").onclick = () => {
 
 document.getElementById("save_button").onclick = () => {
   save_paint()
+}
+
+document.getElementById("eraser").onclick = () => {
+  document.getElementById("eraser").classList.remove("invalid");
+  document.getElementById("pen").classList.add("invalid");
+}
+document.getElementById("pen").onclick = () => {
+  document.getElementById("pen").classList.remove("invalid");
+  document.getElementById("eraser").classList.add("invalid");
 }
 
 document.getElementById("fullOverlay").onclick = async () => {
