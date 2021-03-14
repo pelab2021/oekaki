@@ -115,12 +115,15 @@ if (window.Worker) {
   render_worker = new Worker("render.js")
 
   render_worker.onmessage = (e) => {
-    oekaki_img = e.data;
-    canvasCtx.save();
-    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-    canvasCtx.drawImage(camera_img_from_mediapipe, 0, 0, canvasElement.width, canvasElement.height);
-    canvasCtx.putImageData(oekaki_img, 0, 0)
-    canvasCtx.restore();
+    oekaki_img = e.data.img;
+    render_loop_cnt = e.data.loop_cnt;
+    if(e.data.draw){
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+      canvasCtx.drawImage(camera_img_from_mediapipe, 0, 0, canvasElement.width, canvasElement.height);
+      canvasCtx.putImageData(oekaki_img, 0, 0)
+      canvasCtx.restore();
+    }
   }
 
 } else {
@@ -164,6 +167,8 @@ let fpsch = new fpsCheck((_fpsch) => {
 })
 fpsch.start();
 
+let loop_cnt = 0;
+let render_loop_cnt = 0;
 let onresults_first = true
 const onResults = (results) => {
   if (onresults_first) {
@@ -180,6 +185,8 @@ const onResults = (results) => {
       return classification.label === 'Right';
     })
     : null;
+  loop_cnt++;
+  let draw = (loop_cnt <= render_loop_cnt + 2);
   const render_data = {
     msg: "main",
     audio_data: audio_data,
@@ -194,7 +201,9 @@ const onResults = (results) => {
     line_on: line_on,
     erase_mode: erase_mode,
     line_thickness: line_thickness,
-    line_color:line_color
+    line_color:line_color,
+    loop_cnt: loop_cnt,
+    draw:  draw//render_loop_cntが過度に遅れてる場合は描画をせずに点の記録に留める
   }
   render_worker.postMessage(render_data);
   back_button_cnt = 0

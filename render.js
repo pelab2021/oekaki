@@ -155,6 +155,8 @@ onmessage = (e) => {
       console.error(e)
   }
 }
+
+let onmessage_main_cnt = 0;
 const onmessage_main = (render_data) => {
   if (!opencv_loaded) {
     return
@@ -162,8 +164,6 @@ const onmessage_main = (render_data) => {
   canvas_height = render_data.height
   canvas_width = render_data.width
   // const audio_data = render_data.audio_data
-  let result_img = get_new_img()
-  let now_img = get_new_img()
   hand_points = []
   let is_inserted = false
 
@@ -191,64 +191,81 @@ const onmessage_main = (render_data) => {
     }
   }
 
-  let is_empty = true;
-  const check_empty = (line) => {
-    is_empty = is_empty && (line.length == 0);
-  };
-  lines.forEach(check_empty)
-  now_line.forEach(check_empty)
-
-
-  if (old_img_sum == null) {
-    old_img_sum = get_new_img()
-  }
-
-  now_img.erase_mode = render_data.erase_mode
-
   let old_imgs_changed = false;
+  //draw命令が来ている || ストロークの最後
+  if(render_data.draw || (!render_data.line_on && !is_empty) ) {
+    let is_empty = true;
+    const check_empty = (line) => {
+      is_empty = is_empty && (line.length == 0);
+    };
+    lines.forEach(check_empty)
+    now_line.forEach(check_empty)
 
-  if (!is_empty) {
-
-    let lc = render_data.line_color;
-    let color = new cv.Scalar(lc[0], lc[1], lc[2], lc[3]);
-    for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
-      const drawline = (line) => {
-        const line_points = draw_calc(line);
-        for (let i = 0; i < line_points.length - 1; i++) {
-          cv.line(now_img, line_points[i], line_points[i + 1], color /*colors[audio_data.color_index]*/, render_data.line_thickness, cv.LINE_8, 0);
-        }
-      };
-      lines[hand_i].forEach(drawline);
-      drawline(now_line[hand_i])
+    if (old_img_sum == null) {
+      old_img_sum = get_new_img()
     }
+
+    let result_img = get_new_img()
+    let now_img = get_new_img()
+
+    now_img.erase_mode = render_data.erase_mode
+
+
+    if (!is_empty) {
+
+      let lc = render_data.line_color;
+      let color = new cv.Scalar(lc[0], lc[1], lc[2], lc[3]);
+      for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
+        const drawline = (line) => {
+          const line_points = draw_calc(line);
+          for (let i = 0; i < line_points.length - 1; i++) {
+            cv.line(now_img, line_points[i], line_points[i + 1], color /*colors[audio_data.color_index]*/, render_data.line_thickness, cv.LINE_8, 0);
+          }
+        };
+        lines[hand_i].forEach(drawline);
+        drawline(now_line[hand_i])
+      }
+    }
+
+    draw_img(old_img_sum, result_img)
+    draw_img(now_img, result_img)
+
+    hand_points.forEach((p)=>{
+      cv.circle(result_img, p, 5, new cv.Scalar(255,0,0,255), 5);
+    })
+
+    let send_img = get_new_img()
+    //左右反転
+    cv.flip(result_img, send_img, 1);
+
+    postMessage({
+      img: imageDataFromMat(send_img),
+      loop_cnt: render_data.loop_cnt,
+      draw: render_data.draw
+    })
+
+    result_img.delete()
+    send_img.delete()
+    //ペン/消しゴムが置かれた & 線が書かれている途中 -> ストロークの最後
+    if (!render_data.line_on && !is_empty) {
+      for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
+        lines[hand_i].splice(0)
+        now_line[hand_i].splice(0);
+      }
+      old_imgs.push(now_img);
+      old_imgs_changed = true
+      is_inserted = true
+    } else {
+      now_img.delete();
+    }
+  }else{
+    postMessage({
+      img: null,
+      loop_cnt: render_data.loop_cnt,
+      draw: render_data.draw
+    })
   }
 
-  draw_img(old_img_sum, result_img)
-  draw_img(now_img, result_img)
-
-  hand_points.forEach((p)=>{
-    cv.circle(result_img, p, 5, new cv.Scalar(255,0,0,255), 5);
-  })
-
-  let send_img = get_new_img()
-  //左右反転
-  cv.flip(result_img, send_img, 1);
-  postMessage(imageDataFromMat(send_img))
-
-  result_img.delete()
-  send_img.delete()
-
-  if (!render_data.line_on && !is_empty) {
-    for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
-      lines[hand_i].splice(0)
-      now_line[hand_i].splice(0);
-    }
-    old_imgs.push(now_img);
-    old_imgs_changed = true
-    is_inserted = true
-  } else {
-    now_img.delete();
-  }
 
   if(render_data.back_button_cnt > 0) {
     let deleted = old_imgs.splice(-1, render_data.back_button_cnt);
