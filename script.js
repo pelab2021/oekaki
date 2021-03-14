@@ -6,9 +6,19 @@ const MIC_THRESHOLD = 0.01
 const videoElement = document.getElementsByClassName('input_video')[0];
 const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const canvasElementForSave = document.getElementsByClassName('output_canvas_for_save')[0];
-const controlsElement = document.getElementsByClassName('control-panel')[0];
 const canvasCtx = canvasElement.getContext('2d');
 const loudnessElement = document.getElementById("loudness")
+
+
+// 設定パラメータ
+let line_thickness = 5; // 線の太さ
+let line_color = [255,255,255,255]; //RGBA
+let line_on = true; // ペン/消しゴム の線を描画するかどうか
+let erase_mode = false; // ペンを使うか消しゴムを使うか
+
+let back_button_cnt = 0
+let forward_button_cnt = 0
+let clear_flag = false
 
 // Optimization: Turn off animated spinner after its hiding animation is done.
 const spinner = document.querySelector('.loading');
@@ -22,9 +32,6 @@ let audio_data = {
   color_index: 0
 }
 
-let back_button_cnt = 0
-let forward_button_cnt = 0
-let clear_flag = false
 
 let audioCtx = null
 let wavedata = null
@@ -157,8 +164,6 @@ let fpsch = new fpsCheck((_fpsch) => {
 })
 fpsch.start();
 
-
-
 let onresults_first = true
 const onResults = (results) => {
   if (onresults_first) {
@@ -181,17 +186,21 @@ const onResults = (results) => {
     hands_found: hands_found,
     isRightHand: isRightHand,
     landmarks: hands_found ? results.multiHandLandmarks : null,
-    erase_mode: document.getElementById("pen_mode").value == "eraser",
     height: canvasElement.height,
     width: canvasElement.width,
     back_button_cnt: back_button_cnt,
     forward_button_cnt: forward_button_cnt,
-    clear_flag: clear_flag
+    clear_flag: clear_flag,
+    line_on: line_on,
+    erase_mode: erase_mode,
+    line_thickness: line_thickness,
+    line_color:line_color
   }
   render_worker.postMessage(render_data);
   back_button_cnt = 0
   forward_button_cnt = 0
   clear_flag = false
+// document.getElementById("pen_mode").value == "eraser"
 }
 
 const hands = new Hands({

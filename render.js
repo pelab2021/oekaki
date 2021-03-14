@@ -8,8 +8,6 @@ let old_img_sum = null;
 const MAX_NUM_HANDS = 2;
 //連続だとみなす2点間の距離の上限
 const MAX_NORM = 200;
-//線の太さ
-const LINE_THICKNESS = 5;
 
 let lines = [[], []];
 let canvas_height = null;
@@ -163,7 +161,7 @@ const onmessage_main = (render_data) => {
   }
   canvas_height = render_data.height
   canvas_width = render_data.width
-  const audio_data = render_data.audio_data
+  // const audio_data = render_data.audio_data
   let result_img = get_new_img()
   let now_img = get_new_img()
   hand_points = []
@@ -179,7 +177,7 @@ const onmessage_main = (render_data) => {
 
       const nl_len = now_line[hand_i].length;
       hand_points.push(p)
-      if (audio_data.on) {
+      if (render_data.line_on) {
         //2点以上ある場合は距離判定
         if (now_line[hand_i].length > 0) {
           const sq_norm = (now_line[hand_i][nl_len - 1].x - p.x) ** 2 + (now_line[hand_i][nl_len - 1].y - p.y) ** 2;
@@ -211,11 +209,13 @@ const onmessage_main = (render_data) => {
 
   if (!is_empty) {
 
+    let lc = render_data.line_color;
+    let color = new cv.Scalar(lc[0], lc[1], lc[2], lc[3]);
     for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
       const drawline = (line) => {
         const line_points = draw_calc(line);
         for (let i = 0; i < line_points.length - 1; i++) {
-          cv.line(now_img, line_points[i], line_points[i + 1], colors[audio_data.color_index], LINE_THICKNESS, cv.LINE_8, 0);
+          cv.line(now_img, line_points[i], line_points[i + 1], color /*colors[audio_data.color_index]*/, render_data.line_thickness, cv.LINE_8, 0);
         }
       };
       lines[hand_i].forEach(drawline);
@@ -238,7 +238,7 @@ const onmessage_main = (render_data) => {
   result_img.delete()
   send_img.delete()
 
-  if (!audio_data.on && !is_empty) {
+  if (!render_data.line_on && !is_empty) {
     for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
       lines[hand_i].splice(0)
       now_line[hand_i].splice(0);
