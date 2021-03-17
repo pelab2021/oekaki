@@ -291,5 +291,47 @@ document.getElementById("fullOverlay").onclick = async () => {
 // }
 
 
+// // 音声認識
+// var recognition = new webkitSpeechRecognition();
+// var elmStart = document.getElementById('recognitionStart');
+// var elmEnd = document.getElementById('recognitionEnd');
+// var elmResult = document.getElementById('recognitionResult');
 
+// recognition.lang = 'ja';
+// recognition.continuous = true;
+
+// recognition.addEventListener('result', function (event) {
+//     var text = '';
+
+//     for (var i = 0; i < event.results.length; i++) {
+//         text += event.results[i][0].transcript;
+//     }
+
+//     elmResult.value = text;
+
+//     // if(text === "ペン") {
+//     //   erase_mode = false;
+//     // }
+//     // if(text === "消しゴム") {
+//     //   erase_mode = true;
+//     // }
+
+// //太さline_thickness
+
+//     if(text === "赤") line_color = [255,0,0,255];
+//     if(text === "保存する") save_paint(); 
+//     if(text === "進める") forward_button_cnt += 1; //まだ
+//     if(text === "戻す") back_button_cnt -= 1; //まだ
+//     if(text === "全部消す") clear_flag = true; //まだ
+
+// }, false);
+
+// elmStart.addEventListener('click', function () {
+//     elmResult.value = '';
+//     recognition.start();
+// }, false);
+
+// elmEnd.addEventListener('click', function () {
+//     recognition.stop();
+// }, false);
 

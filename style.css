@@ -201,3 +201,22 @@ body {
   -moz-user-select: none; /* Firefox */
   -webkit-user-select: none; /* Safari、Chromeなど */
 }
+
+#recognitionStart{
+  position: absolute;
+  left: 0px;
+  top: 30px;
+  color:black;
+}
+#recognitionEnd{
+  position: absolute;
+  left: 70px;
+  top: 30px;
+  color:black;
+}
+#recognitionResult{
+  position: absolute;
+  left: 150px;
+  top: 30px;
+  color:black;
+}
