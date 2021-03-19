@@ -3,12 +3,15 @@ let now_line = [[], []];
 let old_imgs = [];
 let next_imgs = [];
 let old_img_sum = null;
+let now_img = null
+let img_his = null;
 
 
 const MAX_NUM_HANDS = 2;
 //連続だとみなす2点間の距離の上限
 const MAX_NORM = 200;
 
+//まだ書いてないlineを格納する配列
 let lines = [[], []];
 let canvas_height = null;
 let canvas_width = null;
@@ -40,6 +43,55 @@ function waitForOpencv(callbackFn, waitTimeMs = 30000, stepTimeMs = 100) {
   }
 }
 
+const get_new_img = () => {
+  return new cv.Mat(canvas_height, canvas_width, cv.CV_8UC4, transparent_color);
+}
+
+class ImageHistory {
+  constructor() {
+    this.imgs = [];
+    this.now_index = 0;
+    this._sum_img = get_new_img();
+  }
+  push(img) {
+    this.imgs.splice(this.now_index)
+    this.imgs.push(img);
+    this.now_index += 1;
+    this.update_img_sum()
+    console.log("pushed, now_index:", this.now_index)
+  }
+  move(num) {
+    if (num != 0) {
+      this.now_index += num
+      this.now_index = Math.min(this.imgs.length, this.now_index)
+      this.now_index = Math.max(0, this.now_index)
+      this.update_img_sum()
+    }
+  }
+  back(num) {
+    this.move(-num)
+  }
+  forward(num) {
+    this.move(num)
+  }
+  update_img_sum() {
+    this._sum_img.setTo(transparent_color)
+    this.imgs.slice(0, this.now_index).forEach((o_img) => {
+      draw_img(o_img, this.sum_img)
+    });
+  }
+  push_clear() {
+    if (this.imgs.length > 0 && !this.imgs[this.now_index - 1].is_clear) {
+      let erase_img = new cv.Mat(canvas_height, canvas_width, cv.CV_8UC4, new cv.Scalar(255, 255, 255, 255));
+      erase_img.erase_mode = true
+      erase_img.is_clear = true
+      this.push(erase_img)
+    }
+  }
+  get sum_img() {
+    return this._sum_img
+  }
+}
 
 const init = (success) => {
   if (success) {
@@ -68,9 +120,8 @@ const init = (success) => {
 
 waitForOpencv(init)
 
-const get_new_img = () => {
-  return new cv.Mat(canvas_height, canvas_width, cv.CV_8UC4, transparent_color);
-}
+
+
 
 
 const draw_img = (src, dst) => {
@@ -146,6 +197,14 @@ const imageDataFromMat = (mat) => {
   return clampedArray
 }
 
+//
+const draw_line = (img, line, color, thickness) => {
+  const line_points = draw_calc(line);
+  for (let i = 0; i < line_points.length - 1; i++) {
+    cv.line(img, line_points[i], line_points[i + 1], color /*colors[audio_data.color_index]*/, thickness, cv.LINE_8, 0);
+  }
+};
+
 onmessage = (e) => {
   switch (e.data.msg) {
     case "main":
@@ -157,15 +216,19 @@ onmessage = (e) => {
 }
 
 let onmessage_main_cnt = 0;
+let pre_erase_mode = false;
+
 const onmessage_main = (render_data) => {
   if (!opencv_loaded) {
     return
   }
+
   canvas_height = render_data.height
   canvas_width = render_data.width
-  // const audio_data = render_data.audio_data
+  if (img_his == null) {
+    img_his = new ImageHistory()
+  }
   hand_points = []
-  let is_inserted = false
 
   if (render_data.hands_found) {
     for (let index = 0; index < render_data.landmarks.length; index++) {
@@ -191,47 +254,65 @@ const onmessage_main = (render_data) => {
     }
   }
 
-  let old_imgs_changed = false;
-  //draw命令が来ている || ストロークの最後
-  if(render_data.draw || (!render_data.line_on && !is_empty) ) {
-    let is_empty = true;
-    const check_empty = (line) => {
-      is_empty = is_empty && (line.length == 0);
-    };
-    lines.forEach(check_empty)
-    now_line.forEach(check_empty)
+  let is_empty = true;
+  const check_empty = (line) => {
+    is_empty = is_empty && (line.length == 0);
+  };
+  lines.forEach(check_empty)
+  now_line.forEach(check_empty)
 
-    if (old_img_sum == null) {
-      old_img_sum = get_new_img()
+  //xor
+  let erase_mode_toggled = (pre_erase_mode && !render_data.erase_mode) || (!pre_erase_mode && render_data.erase_mode)
+
+  //線が書かれている途中で、 (ペン/消しゴムが置かれた/切り替えられた || 各種描画操作コマンドが実行された||色が変更された) -> ストロークの最後
+  let is_stroke_end = !is_empty && (!render_data.line_on || erase_mode_toggled || (render_data.back_button_cnt > 0) || (render_data.forward_button_cnt > 0) || (render_data.clear_flag));
+
+  console.log(img_his.now_index)
+  //draw命令が来ている || ストロークの最後
+  if (render_data.draw || is_stroke_end) {
+
+    if (now_img == null) {
+      now_img = get_new_img()
     }
 
     let result_img = get_new_img()
-    let now_img = get_new_img()
+    let add_img = get_new_img()
 
-    now_img.erase_mode = render_data.erase_mode
+    //ストロークを切り替えたタイミングから1サイクル遅れる必要がある
+    now_img.erase_mode = pre_erase_mode
+    add_img.erase_mode = pre_erase_mode
 
+    draw_img(img_his.sum_img, result_img)
 
-    if (!is_empty) {
+    let lc = render_data.line_color;
+    let color = new cv.Scalar(lc[0], lc[1], lc[2], lc[3]);
 
-      let lc = render_data.line_color;
-      let color = new cv.Scalar(lc[0], lc[1], lc[2], lc[3]);
+    //ストロークの最後なのでにnow_lineをlinesに移す
+    if (is_stroke_end) {
       for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
-        const drawline = (line) => {
-          const line_points = draw_calc(line);
-          for (let i = 0; i < line_points.length - 1; i++) {
-            cv.line(now_img, line_points[i], line_points[i + 1], color /*colors[audio_data.color_index]*/, render_data.line_thickness, cv.LINE_8, 0);
-          }
-        };
-        lines[hand_i].forEach(drawline);
-        drawline(now_line[hand_i])
+        lines[hand_i].push(_.cloneDeep(now_line[hand_i]));
+        now_line[hand_i].splice(0);
       }
     }
 
-    draw_img(old_img_sum, result_img)
+    for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
+      lines[hand_i].forEach(line => {
+        if (line.length > 0) {
+          draw_line(now_img, line, color, render_data.line_thickness);
+        }
+      })
+      lines[hand_i].splice(0)
+    }
     draw_img(now_img, result_img)
+    for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
+      if (now_line[hand_i].length > 0) {
+        draw_line(result_img, now_line[hand_i], color, render_data.line_thickness)
+      }
+    }
+    draw_img(add_img, result_img)
 
-    hand_points.forEach((p)=>{
-      cv.circle(result_img, p, 5, new cv.Scalar(255,0,0,255), 5);
+    hand_points.forEach((p) => {
+      cv.circle(result_img, p, 5, new cv.Scalar(255, 0, 0, 255), 5);
     })
 
     let send_img = get_new_img()
@@ -245,20 +326,19 @@ const onmessage_main = (render_data) => {
     })
 
     result_img.delete()
+    add_img.delete()
     send_img.delete()
-    //ペン/消しゴムが置かれた & 線が書かれている途中 -> ストロークの最後
-    if (!render_data.line_on && !is_empty) {
+    if (is_stroke_end) {
       for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
-        lines[hand_i].splice(0)
+        // lines[hand_i].splice(0)
         now_line[hand_i].splice(0);
       }
-      old_imgs.push(now_img);
-      old_imgs_changed = true
+      img_his.push(now_img)
+      now_img = get_new_img()
+      // old_imgs_changed = true
       is_inserted = true
-    } else {
-      now_img.delete();
     }
-  }else{
+  } else {
     postMessage({
       img: null,
       loop_cnt: render_data.loop_cnt,
@@ -267,30 +347,9 @@ const onmessage_main = (render_data) => {
   }
 
 
-  if(render_data.back_button_cnt > 0) {
-    let deleted = old_imgs.splice(-1, render_data.back_button_cnt);
-    next_imgs = deleted.concat(next_imgs)
-    old_imgs_changed = true
-  }
-  if(render_data.forward_button_cnt> 0) {
-    let add_imgs = next_imgs.splice(0, render_data.forward_button_cnt);
-    old_imgs = old_imgs.concat(add_imgs)
-    old_imgs_changed = true
-  }
+  img_his.back(render_data.back_button_cnt)
+  img_his.forward(render_data.forward_button_cnt)
+  if (render_data.clear_flag) img_his.push_clear()
 
-  if(render_data.clear_flag){
-    let erase_img = new cv.Mat(canvas_height, canvas_width, cv.CV_8UC4, new cv.Scalar(255,255,255,255));
-    erase_img.erase_mode = true
-    old_imgs.push(erase_img);
-    old_imgs_changed = true
-    is_inserted = true
-  }
-
-  if (old_imgs_changed) {
-    old_img_sum.setTo(transparent_color)
-    old_imgs.forEach((o_img) => {
-      draw_img(o_img, old_img_sum)
-    });
-  }
-  if(is_inserted) next_imgs.splice(0);
+  pre_erase_mode = render_data.erase_mode;
 }
