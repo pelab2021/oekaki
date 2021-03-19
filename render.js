@@ -1,8 +1,4 @@
 self.importScripts("https://docs.opencv.org/3.4.0/opencv.js", "./cardinal-spline-js/curve_calc.min.js", "https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js")
-let now_line = [[], []];
-let old_imgs = [];
-let next_imgs = [];
-let old_img_sum = null;
 let now_img = null
 let img_his = null;
 
@@ -12,7 +8,7 @@ const MAX_NUM_HANDS = 2;
 const MAX_NORM = 200;
 
 //まだ書いてないlineを格納する配列
-let lines = [[], []];
+let lines = [[[]], [[]]];
 let canvas_height = null;
 let canvas_width = null;
 
@@ -54,11 +50,13 @@ class ImageHistory {
     this._sum_img = get_new_img();
   }
   push(img) {
-    this.imgs.splice(this.now_index)
+    let deleted = this.imgs.splice(this.now_index)
+    deleted.forEach(img => {
+      img.delete()
+    })
     this.imgs.push(img);
     this.now_index += 1;
     this.update_img_sum()
-    console.log("pushed, now_index:", this.now_index)
   }
   move(num) {
     if (num != 0) {
@@ -117,12 +115,7 @@ const init = (success) => {
   }
 }
 
-
 waitForOpencv(init)
-
-
-
-
 
 const draw_img = (src, dst) => {
   let channels = new cv.MatVector();
@@ -145,6 +138,7 @@ const draw_img = (src, dst) => {
   alpha.delete();
   mask.delete();
 }
+
 const draw_calc = (line) => {
   let retval = []
   if (line.length > 0) {
@@ -238,28 +232,27 @@ const onmessage_main = (render_data) => {
       const p = new cv.Point(landmarks[8].x * canvas_width, landmarks[8].y * canvas_height);
       const hand_i = isRightHand ? 0 : 1;
 
-      const nl_len = now_line[hand_i].length;
+      let now_line = lines[hand_i][lines[hand_i].length - 1]
+      const nl_len = now_line.length;
       hand_points.push(p)
       if (render_data.line_on) {
         //2点以上ある場合は距離判定
-        if (now_line[hand_i].length > 0) {
-          const sq_norm = (now_line[hand_i][nl_len - 1].x - p.x) ** 2 + (now_line[hand_i][nl_len - 1].y - p.y) ** 2;
+        if (now_line.length > 0) {
+          const sq_norm = (now_line[nl_len - 1].x - p.x) ** 2 + (now_line[nl_len - 1].y - p.y) ** 2;
           if (sq_norm > MAX_NORM ** 2) {
-            lines[hand_i].push(_.cloneDeep(now_line[hand_i]));
-            now_line[hand_i].splice(0);
+            lines[hand_i].push([]);
           }
         }
-        now_line[hand_i].push(p);
+        lines[hand_i][lines[hand_i].length - 1].push(p);
       }
     }
   }
 
   let is_empty = true;
   const check_empty = (line) => {
-    is_empty = is_empty && (line.length == 0);
+    is_empty = is_empty && (line.length == 1) && (line[0].length == 0)
   };
   lines.forEach(check_empty)
-  now_line.forEach(check_empty)
 
   //xor
   let erase_mode_toggled = (pre_erase_mode && !render_data.erase_mode) || (!pre_erase_mode && render_data.erase_mode)
@@ -267,7 +260,6 @@ const onmessage_main = (render_data) => {
   //線が書かれている途中で、 (ペン/消しゴムが置かれた/切り替えられた || 各種描画操作コマンドが実行された||色が変更された) -> ストロークの最後
   let is_stroke_end = !is_empty && (!render_data.line_on || erase_mode_toggled || (render_data.back_button_cnt > 0) || (render_data.forward_button_cnt > 0) || (render_data.clear_flag));
 
-  console.log(img_his.now_index)
   //draw命令が来ている || ストロークの最後
   if (render_data.draw || is_stroke_end) {
 
@@ -287,26 +279,28 @@ const onmessage_main = (render_data) => {
     let lc = render_data.line_color;
     let color = new cv.Scalar(lc[0], lc[1], lc[2], lc[3]);
 
-    //ストロークの最後なのでにnow_lineをlinesに移す
+    //ストロークの最後なので新しいlineを作る
     if (is_stroke_end) {
       for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
-        lines[hand_i].push(_.cloneDeep(now_line[hand_i]));
-        now_line[hand_i].splice(0);
+        lines[hand_i].push([]);
       }
     }
 
     for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
-      lines[hand_i].forEach(line => {
+      let write_target = lines[hand_i].splice(0, lines[hand_i].length - 1)
+      write_target.forEach(line => {
+        // lines[hand_i].forEach(line => {
         if (line.length > 0) {
           draw_line(now_img, line, color, render_data.line_thickness);
         }
       })
-      lines[hand_i].splice(0)
+      // lines[hand_i].splice(0)
     }
     draw_img(now_img, result_img)
     for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
-      if (now_line[hand_i].length > 0) {
-        draw_line(result_img, now_line[hand_i], color, render_data.line_thickness)
+      //残っているとしたら一つしか残っていない
+      if (lines[hand_i].length > 0 && lines[hand_i][0].length > 0) {
+        draw_line(result_img, lines[hand_i][0], color, render_data.line_thickness)
       }
     }
     draw_img(add_img, result_img)
@@ -330,13 +324,10 @@ const onmessage_main = (render_data) => {
     send_img.delete()
     if (is_stroke_end) {
       for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
-        // lines[hand_i].splice(0)
-        now_line[hand_i].splice(0);
+        lines[hand_i].push([])
       }
       img_his.push(now_img)
       now_img = get_new_img()
-      // old_imgs_changed = true
-      is_inserted = true
     }
   } else {
     postMessage({
