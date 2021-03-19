@@ -238,7 +238,6 @@ const onmessage_main = (render_data) => {
       hand_points.push(p)
       if (render_data.line_on) {
         //2点以上ある場合は距離判定
-        console.log(nl_len)
         if (nl_len > 0) {
           //1つのlineが長すぎないように
           if(nl_len > 80){
