@@ -7,6 +7,7 @@ const MAX_NUM_HANDS = 2;
 //連続だとみなす2点間の距離の上限
 const MAX_NORM = 200;
 
+
 //まだ書いてないlineを格納する配列
 let lines = [[[]], [[]]];
 let canvas_height = null;
@@ -237,10 +238,18 @@ const onmessage_main = (render_data) => {
       hand_points.push(p)
       if (render_data.line_on) {
         //2点以上ある場合は距離判定
-        if (now_line.length > 0) {
-          const sq_norm = (now_line[nl_len - 1].x - p.x) ** 2 + (now_line[nl_len - 1].y - p.y) ** 2;
-          if (sq_norm > MAX_NORM ** 2) {
+        console.log(nl_len)
+        if (nl_len > 0) {
+          //1つのlineが長すぎないように
+          if(nl_len > 80){
+            lines[hand_i][lines[hand_i].length - 1].push(p);
             lines[hand_i].push([]);
+          }else{
+            const sq_norm = (now_line[nl_len - 1].x - p.x) ** 2 + (now_line[nl_len - 1].y - p.y) ** 2;
+            //距離の制限
+            if (sq_norm > MAX_NORM ** 2) {
+              lines[hand_i].push([]);
+            }
           }
         }
         lines[hand_i][lines[hand_i].length - 1].push(p);
@@ -279,7 +288,7 @@ const onmessage_main = (render_data) => {
     let lc = render_data.line_color;
     let color = new cv.Scalar(lc[0], lc[1], lc[2], lc[3]);
 
-    //ストロークの最後なので新しいlineを作る
+    //ストロークの最後なので新しいlineを作るす
     if (is_stroke_end) {
       for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
         lines[hand_i].push([]);
@@ -294,7 +303,6 @@ const onmessage_main = (render_data) => {
           draw_line(now_img, line, color, render_data.line_thickness);
         }
       })
-      // lines[hand_i].splice(0)
     }
     draw_img(now_img, result_img)
     for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
