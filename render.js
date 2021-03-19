@@ -1,20 +1,20 @@
-self.importScripts("https://docs.opencv.org/3.4.0/opencv.js", "./cardinal-spline-js/curve_calc.min.js", "https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js")
-let now_img = null
-let img_his = null;
-
+self.importScripts("https://docs.opencv.org/3.4.0/opencv.js", "./cardinal-spline-js/curve_calc.min.js"/*, "https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"*/)
 
 const MAX_NUM_HANDS = 2;
 //連続だとみなす2点間の距離の上限
 const MAX_NORM = 200;
 
+let now_img = null
+let img_his = null;
 
 //まだ書いてないlineを格納する配列
+//[right_hand[lines[now_line[]]], left_hand[lines[now_line[]]]]のように初期化されている
 let lines = [[[]], [[]]];
 let canvas_height = null;
 let canvas_width = null;
 
 let transparent_color = null
-let colors = null
+// let colors = null
 let opencv_loaded = false
 
 /**
@@ -96,18 +96,18 @@ const init = (success) => {
   if (success) {
 
     transparent_color = new cv.Scalar(0, 0, 0, 0);
-    colors =
-      [
-        new cv.Scalar(255, 255, 255, 255),
-        new cv.Scalar(255, 0, 0, 255),
-        new cv.Scalar(255, 165, 0, 255),
-        new cv.Scalar(255, 255, 0, 255),
-        new cv.Scalar(0, 128, 0, 255),
-        new cv.Scalar(0, 255, 255, 255),
-        new cv.Scalar(0, 0, 255, 255),
-        new cv.Scalar(128, 0, 128, 255),
-        new cv.Scalar(0, 0, 0, 255),
-      ];  // RGBA
+    // colors =
+    //   [
+    //     new cv.Scalar(255, 255, 255, 255),
+    //     new cv.Scalar(255, 0, 0, 255),
+    //     new cv.Scalar(255, 165, 0, 255),
+    //     new cv.Scalar(255, 255, 0, 255),
+    //     new cv.Scalar(0, 128, 0, 255),
+    //     new cv.Scalar(0, 255, 255, 255),
+    //     new cv.Scalar(0, 0, 255, 255),
+    //     new cv.Scalar(128, 0, 128, 255),
+    //     new cv.Scalar(0, 0, 0, 255),
+    //   ];  // RGBA
     opencv_loaded = true
     console.log("Opencv.js loaded")
   } else {
