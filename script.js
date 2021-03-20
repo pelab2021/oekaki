@@ -11,9 +11,9 @@ const loudnessElement = document.getElementById("loudness")
 
 
 // 設定パラメータ
-let line_thickness = 5; // 線の太さ
+let line_thickness = 10; // 線の太さ
 let line_color = [255,255,255,255]; //RGBA
-let line_on = true; // ペン/消しゴム の線を描画するかどうか
+let line_on = false; // ペン/消しゴム の線を描画するかどうか
 let erase_mode = false; // ペンを使うか消しゴムを使うか
 
 let back_button_cnt = 0
@@ -291,47 +291,52 @@ document.getElementById("fullOverlay").onclick = async () => {
 // }
 
 
-// // 音声認識
-// var recognition = new webkitSpeechRecognition();
-// var elmStart = document.getElementById('recognitionStart');
-// var elmEnd = document.getElementById('recognitionEnd');
-// var elmResult = document.getElementById('recognitionResult');
+// 音声認識
+var recognition = new webkitSpeechRecognition();
+var elmStart = document.getElementById('recognitionStart');
+var elmEnd = document.getElementById('recognitionEnd');
+var elmResult = document.getElementById('recognitionResult');
 
-// recognition.lang = 'ja';
-// recognition.continuous = true;
+recognition.lang = 'ja';
+recognition.continuous = true;
 
-// recognition.addEventListener('result', function (event) {
-//     var text = '';
+recognition.addEventListener('result', function (event) {
+    var text = '';
 
-//     for (var i = 0; i < event.results.length; i++) {
-//         text += event.results[i][0].transcript;
-//     }
+    for (var i = 0; i < event.results.length; i++) {
+        text += event.results[i][0].transcript;
+    }
 
-//     elmResult.value = text;
+    elmResult.value = text;
 
-//     // if(text === "ペン") {
-//     //   erase_mode = false;
-//     // }
-//     // if(text === "消しゴム") {
-//     //   erase_mode = true;
-//     // }
+    if(text === "鉛筆") {
+      erase_mode = false;
+      line_on = true;
+    } else if(text === "消しゴム") {
+      erase_mode = true;
+      line_on = true;
+    }
+    // else if (text === "なし"){
+    //   line_on = false; //一度 line_on = falseにすると動かなくなってしまう
+    // }
 
-// //太さline_thickness
+    if(text === "太い") line_thickness = 15;
+    if(text === "細い") line_thickness = 5;
+    if(text === "普通") line_thickness = 10;
 
-//     if(text === "赤") line_color = [255,0,0,255];
-//     if(text === "保存する") save_paint(); 
-//     if(text === "進める") forward_button_cnt += 1; //まだ
-//     if(text === "戻す") back_button_cnt -= 1; //まだ
-//     if(text === "全部消す") clear_flag = true; //まだ
+    if(text === "赤") line_color = [255,0,0,255];
+    if(text === "保存する") save_paint();
+    if(text === "勧める") forward_button_cnt += 1;
+    if(text === "戻す") back_button_cnt += 1;
+    if(text === "全部消す") clear_flag = true;
 
-// }, false);
+}, false);
+elmStart.addEventListener('click', function () {
+    elmResult.value = '';
+    recognition.start();
+}, false);
 
-// elmStart.addEventListener('click', function () {
-//     elmResult.value = '';
-//     recognition.start();
-// }, false);
-
-// elmEnd.addEventListener('click', function () {
-//     recognition.stop();
-// }, false);
+elmEnd.addEventListener('click', function () {
+    recognition.stop();
+}, false);
 
