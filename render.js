@@ -211,12 +211,12 @@ onmessage = (e) => {
 }
 
 let onmessage_main_cnt = 0;
-let pre_erase_mode = false;
+let pre_render_data = null;
 
 const onmessage_main = (render_data) => {
-  if (!opencv_loaded) {
-    return
-  }
+  if (!opencv_loaded) return
+  if(pre_render_data ==null) pre_render_data = render_data
+
 
   canvas_height = render_data.height
   canvas_width = render_data.width
@@ -240,10 +240,10 @@ const onmessage_main = (render_data) => {
         //2点以上ある場合は距離判定
         if (nl_len > 0) {
           //1つのlineが長すぎないように
-          if(nl_len > 80){
+          if (nl_len > 80) {
             lines[hand_i][lines[hand_i].length - 1].push(p);
             lines[hand_i].push([]);
-          }else{
+          } else {
             const sq_norm = (now_line[nl_len - 1].x - p.x) ** 2 + (now_line[nl_len - 1].y - p.y) ** 2;
             //距離の制限
             if (sq_norm > MAX_NORM ** 2) {
@@ -262,11 +262,18 @@ const onmessage_main = (render_data) => {
   };
   lines.forEach(check_empty)
 
+  let is_color_changed = false;
+  for (let i = 0; i < render_data.line_color.length; i++) {
+    is_color_changed = is_color_changed || (render_data.line_color[i] != pre_render_data.line_color[i]);
+  }
+
+
   //xor
-  let erase_mode_toggled = (pre_erase_mode && !render_data.erase_mode) || (!pre_erase_mode && render_data.erase_mode)
+  let erase_mode_toggled = (pre_render_data.erase_mode && !render_data.erase_mode) || (!pre_render_data.erase_mode && render_data.erase_mode)
+  let line_off_notify = (!render_data.line_on && pre_render_data.line_on);
 
   //線が書かれている途中で、 (ペン/消しゴムが置かれた/切り替えられた || 各種描画操作コマンドが実行された||色が変更された) -> ストロークの最後
-  let is_stroke_end = !is_empty && (!render_data.line_on || erase_mode_toggled || (render_data.back_button_cnt > 0) || (render_data.forward_button_cnt > 0) || (render_data.clear_flag));
+  let is_stroke_end = !is_empty && (line_off_notify || erase_mode_toggled || (render_data.back_button_cnt > 0) || (render_data.forward_button_cnt > 0) || (render_data.clear_flag) || is_color_changed);
 
   //draw命令が来ている || ストロークの最後
   if (render_data.draw || is_stroke_end) {
@@ -279,15 +286,15 @@ const onmessage_main = (render_data) => {
     let add_img = get_new_img()
 
     //ストロークを切り替えたタイミングから1サイクル遅れる必要がある
-    now_img.erase_mode = pre_erase_mode
-    add_img.erase_mode = pre_erase_mode
+    now_img.erase_mode = pre_render_data.erase_mode
+    add_img.erase_mode = pre_render_data.erase_mode
 
     draw_img(img_his.sum_img, result_img)
 
-    let lc = render_data.line_color;
-    let color = new cv.Scalar(lc[0], lc[1], lc[2], lc[3]);
+    let color = new cv.Scalar(...render_data.line_color);
+    let pre_color = new cv.Scalar(...pre_render_data.line_color)
 
-    //ストロークの最後なので新しいlineを作るす
+    //ストロークの最後なので新しいlineを作る
     if (is_stroke_end) {
       for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
         lines[hand_i].push([]);
@@ -299,7 +306,7 @@ const onmessage_main = (render_data) => {
       write_target.forEach(line => {
         // lines[hand_i].forEach(line => {
         if (line.length > 0) {
-          draw_line(now_img, line, color, render_data.line_thickness);
+          draw_line(now_img, line, pre_color, render_data.line_thickness);
         }
       })
     }
@@ -307,7 +314,7 @@ const onmessage_main = (render_data) => {
     for (let hand_i = 0; hand_i < MAX_NUM_HANDS; hand_i++) {
       //残っているとしたら一つしか残っていない
       if (lines[hand_i].length > 0 && lines[hand_i][0].length > 0) {
-        draw_line(result_img, lines[hand_i][0], color, render_data.line_thickness)
+        draw_line(add_img, lines[hand_i][0], color, render_data.line_thickness)
       }
     }
     draw_img(add_img, result_img)
@@ -349,5 +356,6 @@ const onmessage_main = (render_data) => {
   img_his.forward(render_data.forward_button_cnt)
   if (render_data.clear_flag) img_his.push_clear()
 
-  pre_erase_mode = render_data.erase_mode;
+  pre_render_data = render_data
+
 }

@@ -316,9 +316,9 @@ recognition.addEventListener('result', function (event) {
       erase_mode = true;
       line_on = true;
     }
-    // else if (text === "なし"){
-    //   line_on = false; //一度 line_on = falseにすると動かなくなってしまう
-    // }
+    else if (text === "なし"){
+      line_on = false; //一度 line_on = falseにすると動かなくなってしまう
+    }
 
     if(text === "太い") line_thickness = 15;
     if(text === "細い") line_thickness = 5;
