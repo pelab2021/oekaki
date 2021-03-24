@@ -312,19 +312,19 @@ var elmResult = document.getElementById('recognitionResult');
 recognition.lang = 'ja';
 recognition.continuous = true;
 
+let times = 0;
+
 recognition.addEventListener('result', function (event) {
-    var text = '';
-
-    for (var i = 0; i < event.results.length; i++) {
-        text += event.results[i][0].transcript;
-    }
-
+    console.log(event.results);
+    
+    let text = event.results[times][0].transcript;
     elmResult.value = text;
+    
     const shineButton = (id) => {
       document.getElementById(id).style.backgroundColor = '#ffc0cb';
       setTimeout(()=>{
         document.getElementById(id).style.backgroundColor = '#ff00ff';
-      }, 3000);
+      }, 2000);
     }
 
     switch(text){
@@ -333,47 +333,67 @@ recognition.addEventListener('result', function (event) {
         erase_mode = false;
         line_on = true;
         document.getElementById("pen").click();
+        times++;
         break;
       case '消しゴム':
         erase_mode = true;
         line_on = true;
         document.getElementById("eraser").click();
+        times++;
         break;
       case 'なし':
         line_on = false; //一度 line_on = falseにすると動かなくなってしまう
+        times++;
         break;
       case '太い':
         line_thickness = 15;
+        times++;
         break;
       case '細い':
         line_thickness = 5;
+        times++;
         break;
       case '普通':
         line_thickness = 10;
+        times++;
         break;
       case '赤':
         line_color = [255,0,0,255];
+        times++;
         break;
       case '保存する':
         save_paint();
         shineButton('save_button');
+        times++;
         break;
       case '勧める':
         forward_button_cnt += 1;
         shineButton('forward_button');
+        times++;
         break;
       case '戻す':
         back_button_cnt += 1;
         shineButton('back_button');
+        times++;
         break;
       case '全部消す':
         clear_flag = true;
         shineButton('clear_button');
+        times++;
         break;
       default:
+        times++;
         break;
     }
 }, false);
+
+
+window.addEventListener('DOMContentLoaded', () => {
+  elmResult.value = '';
+  recognition.start();
+});
+
+/*
 elmStart.addEventListener('click', function () {
     elmResult.value = '';
     recognition.start();
@@ -382,4 +402,4 @@ elmStart.addEventListener('click', function () {
 elmEnd.addEventListener('click', function () {
     recognition.stop();
 }, false);
-
+*/
