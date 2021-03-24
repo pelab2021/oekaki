@@ -1,4 +1,4 @@
-import { freelizer } from 'https://cdn.jsdelivr.net/npm/freelizer@1.0.0/index.min.js'
+import {freelizer} from 'https://cdn.jsdelivr.net/npm/freelizer@1.0.0/index.min.js'
 
 const MAX_NUM_HANDS = 2;
 const MIC_THRESHOLD = 0.01
@@ -6,9 +6,19 @@ const MIC_THRESHOLD = 0.01
 const videoElement = document.getElementsByClassName('input_video')[0];
 const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const canvasElementForSave = document.getElementsByClassName('output_canvas_for_save')[0];
-const controlsElement = document.getElementsByClassName('control-panel')[0];
 const canvasCtx = canvasElement.getContext('2d');
 const loudnessElement = document.getElementById("loudness")
+
+
+// 設定パラメータ
+let line_thickness = 10; // 線の太さ
+let line_color = [255,255,255,255]; //RGBA
+let line_on = false; // ペン/消しゴム の線を描画するかどうか
+let erase_mode = false; // ペンを使うか消しゴムを使うか
+
+let back_button_cnt = 0
+let forward_button_cnt = 0
+let clear_flag = false
 
 // Optimization: Turn off animated spinner after its hiding animation is done.
 const spinner = document.querySelector('.loading');
@@ -22,7 +32,6 @@ let audio_data = {
   color_index: 0
 }
 
-let back_button_cnt = 0
 
 let audioCtx = null
 let wavedata = null
@@ -36,7 +45,7 @@ const audio_init = async () => {
   wavedata = new Float32Array(analyser.fftSize);
   analyser.fftSize = 512;
   // analyser.connect(audioCtx.destination)
-  const mic_stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const mic_stream = await navigator.mediaDevices.getUserMedia({audio: true});
   const mic_input = audioCtx.createMediaStreamSource(mic_stream);
   mic_input.connect(analyser);
 }
@@ -45,6 +54,7 @@ window.onload = async () => {
   audio_init()
 }
 
+let on_pre = false
 const audio_data_update = (data) => {
   // data例
   //{
@@ -65,18 +75,19 @@ const audio_data_update = (data) => {
   if (on && Object.keys(data).includes("frequency") && data["frequency"] != 21.55425219941349) {
     audio_data.color_index = ((data.note.charCodeAt(0) - 65) + data.octave * 8) % 9;
   }
-  audio_data.on = on
+  audio_data.on = on | on_pre
+  on_pre = on
 }
 
-;(async () => {
-  try {
-    const { start, stop, subscribe, unsubscribe } = await freelizer()
-    start()
-    subscribe(audio_data_update)
-  } catch (error) {
-    console.error(error);
-  }
-})()
+  ; (async () => {
+    try {
+      const {start, stop, subscribe, unsubscribe} = await freelizer()
+      start()
+      subscribe(audio_data_update)
+    } catch (error) {
+      console.error(error);
+    }
+  })()
 
 // // local fileを対象にworkerを起動すると出るエラーのための対処
 // // https://tshino.hatenablog.com/entry/20180106/1515218776
@@ -104,15 +115,18 @@ if (window.Worker) {
   render_worker = new Worker("render.js")
 
   render_worker.onmessage = (e) => {
-    oekaki_img = e.data;
-    canvasCtx.save();
-    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-    canvasCtx.drawImage(camera_img_from_mediapipe, 0, 0, canvasElement.width, canvasElement.height);
-    canvasCtx.putImageData(oekaki_img,0,0)
-    canvasCtx.restore();
+    oekaki_img = e.data.img;
+    render_loop_cnt = e.data.loop_cnt;
+    if(e.data.draw){
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+      canvasCtx.drawImage(camera_img_from_mediapipe, 0, 0, canvasElement.width, canvasElement.height);
+      canvasCtx.putImageData(oekaki_img, 0, 0)
+      canvasCtx.restore();
+    }
   }
 
-}else{
+} else {
   console.err("can't find window.Worker.");
 }
 //0.5秒ごとにfpsを計算して値を更新する
@@ -153,37 +167,49 @@ let fpsch = new fpsCheck((_fpsch) => {
 })
 fpsch.start();
 
-
-
-let onresults_first=true
+let loop_cnt = 0;
+let render_loop_cnt = 0;
+let onresults_first = true
 const onResults = (results) => {
-  if (onresults_first){
+  if (onresults_first) {
     // Hide the spinner.
     document.body.classList.add('loaded');
-    onresults_first= false
+    onresults_first = false
   }
 
   fpsch.tick()
   camera_img_from_mediapipe = results.image
   const hands_found = results.multiHandLandmarks && results.multiHandedness
-  const isRightHand = hands_found? 
-  results.multiHandedness.map((classification, index, array)=>{
-        return classification.label === 'Right';
+  const isRightHand = hands_found ?
+    results.multiHandedness.map((classification, index, array) => {
+      return classification.label === 'Right';
     })
-    :null;
+    : null;
+  loop_cnt++;
+  let draw = (loop_cnt <= render_loop_cnt + 2);
   const render_data = {
-    msg:"main",
+    msg: "main",
     audio_data: audio_data,
     hands_found: hands_found,
     isRightHand: isRightHand,
-    landmarks: hands_found? results.multiHandLandmarks:null,
-    erase_mode: document.getElementById("eraser").className !== "invalid",
-    height:canvasElement.height,
-    width:canvasElement.width,
-    back_button_cnt: back_button_cnt
+    landmarks: hands_found ? results.multiHandLandmarks : null,
+    height: canvasElement.height,
+    width: canvasElement.width,
+    back_button_cnt: back_button_cnt,
+    forward_button_cnt: forward_button_cnt,
+    clear_flag: clear_flag,
+    line_on: line_on,
+    erase_mode: erase_mode,
+    line_thickness: line_thickness,
+    line_color:line_color,
+    loop_cnt: loop_cnt,
+    draw:  draw//render_loop_cntが過度に遅れてる場合は描画をせずに点の記録に留める
   }
   render_worker.postMessage(render_data);
   back_button_cnt = 0
+  forward_button_cnt = 0
+  clear_flag = false
+// document.getElementById("pen_mode").value == "eraser"
 }
 
 const hands = new Hands({
@@ -207,7 +233,7 @@ hands.onResults(onResults);
  */
 const camera = new Camera(videoElement, {
   onFrame: async () => {
-    await hands.send({ image: videoElement });
+    await hands.send({image: videoElement});
   },
   width: 1280,
   height: 720
@@ -216,8 +242,8 @@ camera.start();
 
 const save_paint = () => {
 
-  if (!(oekaki_img== null)) {
-    canvasElementForSave.getContext('2d').putImageData(oekaki_img,0,0)
+  if (!(oekaki_img == null)) {
+    canvasElementForSave.getContext('2d').putImageData(oekaki_img, 0, 0)
   }
 
   if (canvasElementForSave.toBlob) {
@@ -231,6 +257,9 @@ const save_paint = () => {
 document.getElementById("back_button").onclick = () => {
   back_button_cnt += 1;
 }
+document.getElementById("forward_button").onclick = () => {
+  forward_button_cnt += 1;
+}
 
 document.getElementById("save_button").onclick = () => {
   save_paint()
@@ -243,6 +272,8 @@ document.getElementById("eraser").onclick = () => {
 document.getElementById("pen").onclick = () => {
   document.getElementById("pen").classList.remove("invalid");
   document.getElementById("eraser").classList.add("invalid");
+document.getElementById("clear_button").onclick = () => {
+  clear_flag = true;
 }
 
 document.getElementById("fullOverlay").onclick = async () => {
@@ -267,5 +298,52 @@ document.getElementById("fullOverlay").onclick = async () => {
 // }
 
 
+// 音声認識
+var recognition = new webkitSpeechRecognition();
+var elmStart = document.getElementById('recognitionStart');
+var elmEnd = document.getElementById('recognitionEnd');
+var elmResult = document.getElementById('recognitionResult');
 
+recognition.lang = 'ja';
+recognition.continuous = true;
+
+recognition.addEventListener('result', function (event) {
+    var text = '';
+
+    for (var i = 0; i < event.results.length; i++) {
+        text += event.results[i][0].transcript;
+    }
+
+    elmResult.value = text;
+
+    if(text === "鉛筆") {
+      erase_mode = false;
+      line_on = true;
+    } else if(text === "消しゴム") {
+      erase_mode = true;
+      line_on = true;
+    }
+    else if (text === "なし"){
+      line_on = false; //一度 line_on = falseにすると動かなくなってしまう
+    }
+
+    if(text === "太い") line_thickness = 15;
+    if(text === "細い") line_thickness = 5;
+    if(text === "普通") line_thickness = 10;
+
+    if(text === "赤") line_color = [255,0,0,255];
+    if(text === "保存する") save_paint();
+    if(text === "勧める") forward_button_cnt += 1;
+    if(text === "戻す") back_button_cnt += 1;
+    if(text === "全部消す") clear_flag = true;
+
+}, false);
+elmStart.addEventListener('click', function () {
+    elmResult.value = '';
+    recognition.start();
+}, false);
+
+elmEnd.addEventListener('click', function () {
+    recognition.stop();
+}, false);
 

@@ -1,5 +1,8 @@
 # Oekaki(仮称)
 
+[Github Pages](https://pelab2021.github.io/oekaki)
+
+
 ## 使い方
 * chromeで直接index.htmlを開くのだと動作しないため、vscodeの[liveserver](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)という拡張機能を使うなりしてローカルにサーバを建てる必要があります
 
