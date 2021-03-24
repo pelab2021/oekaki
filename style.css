@@ -147,13 +147,20 @@ body {
 }
 */
 
-#buttonBar {
-  width: 400px;
+.buttonBar {
+  width: 500px;
   position: absolute;
-  left: 205px;
-  top: 0;
+  left: 0;
+  
   color:black;
 }
+#buttonBar1 {
+  top: 0;
+}
+#buttonBar2 {
+  top: 50px;
+}
+/*
 #clear_button{
   position: absolute;
   left: 250px;
@@ -162,7 +169,7 @@ body {
   display: flex;
   justify-content: space-evenly;
 }
-
+*/
 button {
   border: 0;
   cursor: pointer;
@@ -184,11 +191,7 @@ button {
   text-transform: uppercase;
   transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,border 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
 }
-#save_button:hover {
-  background-color: #ffc0cb;
-  box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%), 0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
-}
-#back_button:hover {
+button:hover {
   background-color: #ffc0cb;
   box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%), 0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
 }
@@ -202,6 +205,9 @@ button.invalid {
 button.invalid:hover {
   background-color: #ffc0cb;
   box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%), 0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
+}
+button.valid:hover {
+  background-color: #ff00ff;
 }
 
 #fps_display{
@@ -250,7 +256,7 @@ button.invalid:hover {
   -moz-user-select: none; /* Firefox */
   -webkit-user-select: none; /* Safari、Chromeなど */
 }
-
+/*
 #recognitionStart{
   position: absolute;
   left: 0px;
@@ -269,3 +275,4 @@ button.invalid:hover {
   top: 30px;
   color:black;
 }
+*/

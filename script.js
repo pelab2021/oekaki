@@ -267,11 +267,16 @@ document.getElementById("save_button").onclick = () => {
 
 document.getElementById("eraser").onclick = () => {
   document.getElementById("eraser").classList.remove("invalid");
+  document.getElementById("eraser").classList.add("valid");
+  document.getElementById("pen").classList.remove("valid");
   document.getElementById("pen").classList.add("invalid");
 }
 document.getElementById("pen").onclick = () => {
   document.getElementById("pen").classList.remove("invalid");
+  document.getElementById("pen").classList.add("valid");
+  document.getElementById("eraser").classList.remove("valid");
   document.getElementById("eraser").classList.add("invalid");
+}
 document.getElementById("clear_button").onclick = () => {
   clear_flag = true;
 }
@@ -316,27 +321,46 @@ recognition.addEventListener('result', function (event) {
 
     elmResult.value = text;
 
-    if(text === "鉛筆") {
-      erase_mode = false;
-      line_on = true;
-    } else if(text === "消しゴム") {
-      erase_mode = true;
-      line_on = true;
+    switch(text){
+
+      case '鉛筆':
+        erase_mode = false;
+        line_on = true;
+        break;
+      case '消しゴム':
+        erase_mode = true;
+        line_on = true;
+        break;
+      case 'なし':
+        line_on = false; //一度 line_on = falseにすると動かなくなってしまう
+        break;
+      case '太い':
+        line_thickness = 15;
+        break;
+      case '細い':
+        line_thickness = 5;
+        break;
+      case '普通':
+        line_thickness = 10;
+        break;
+      case '赤':
+        line_color = [255,0,0,255];
+        break;
+      case '保存する':
+        save_paint();
+        break;
+      case '勧める':
+        forward_button_cnt += 1;
+        break;
+      case '戻す':
+        back_button_cnt += 1;
+        break;
+      case '全部消す':
+        clear_flag = true;
+        break;
+      default:
+        break;
     }
-    else if (text === "なし"){
-      line_on = false; //一度 line_on = falseにすると動かなくなってしまう
-    }
-
-    if(text === "太い") line_thickness = 15;
-    if(text === "細い") line_thickness = 5;
-    if(text === "普通") line_thickness = 10;
-
-    if(text === "赤") line_color = [255,0,0,255];
-    if(text === "保存する") save_paint();
-    if(text === "勧める") forward_button_cnt += 1;
-    if(text === "戻す") back_button_cnt += 1;
-    if(text === "全部消す") clear_flag = true;
-
 }, false);
 elmStart.addEventListener('click', function () {
     elmResult.value = '';
