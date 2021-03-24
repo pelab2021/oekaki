@@ -320,16 +320,23 @@ recognition.addEventListener('result', function (event) {
     }
 
     elmResult.value = text;
+    const shineButton = (id) => {
+      setTimeout(()=>{
+        document.getElementById(id).style.backgroundColor = '#ffc0cb';
+      }, 3000) 
+    }
 
     switch(text){
 
       case '鉛筆':
         erase_mode = false;
         line_on = true;
+        document.getElementById("pen").click();
         break;
       case '消しゴム':
         erase_mode = true;
         line_on = true;
+        document.getElementById("eraser").click();
         break;
       case 'なし':
         line_on = false; //一度 line_on = falseにすると動かなくなってしまう
@@ -348,15 +355,19 @@ recognition.addEventListener('result', function (event) {
         break;
       case '保存する':
         save_paint();
+        shineButton('save_button');
         break;
       case '勧める':
         forward_button_cnt += 1;
+        shineButton('forward_button');
         break;
       case '戻す':
         back_button_cnt += 1;
+        shineButton('back_button');
         break;
       case '全部消す':
         clear_flag = true;
+        shineButton('clear_button');
         break;
       default:
         break;
