@@ -321,9 +321,10 @@ recognition.addEventListener('result', function (event) {
 
     elmResult.value = text;
     const shineButton = (id) => {
+      document.getElementById(id).style.backgroundColor = '#ffc0cb';
       setTimeout(()=>{
-        document.getElementById(id).style.backgroundColor = '#ffc0cb';
-      }, 3000) 
+        document.getElementById(id).style.backgroundColor = '#ff00ff';
+      }, 3000);
     }
 
     switch(text){
