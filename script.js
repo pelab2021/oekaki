@@ -361,7 +361,39 @@ recognition.addEventListener('result', function (event) {
         line_color = [255,0,0,255];
         times++;
         break;
-      case '保存する':
+      case 'オレンジ':
+        line_color = [255,165,0,255];
+        times++;
+        break;
+      case '黄色':
+        line_color = [255,255,0,255];
+        times++;
+        break;
+      case '緑':
+        line_color = [0,128,0,255];
+        times++;
+        break;
+      case '水色':
+        line_color = [0,255,255,255];
+        times++;
+        break;
+      case '青':
+        line_color = [0,0,255,255];
+        times++;
+        break;
+      case '紫':
+        line_color = [128,0,128,255];
+        times++;
+        break;
+      case '白':
+        line_color = [255,255,255,255];
+        times++;
+        break;
+      case '黒':
+        line_color = [0,0,0,255];
+        times++;
+        break;
+        case '保存する':
         save_paint();
         shineButton('save_button');
         times++;
