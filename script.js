@@ -115,9 +115,9 @@ if (window.Worker) {
   render_worker = new Worker("render.js")
 
   render_worker.onmessage = (e) => {
-    oekaki_img = e.data.img;
     render_loop_cnt = e.data.loop_cnt;
     if(e.data.draw){
+      oekaki_img = e.data.img;
       canvasCtx.save();
       canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
       canvasCtx.drawImage(camera_img_from_mediapipe, 0, 0, canvasElement.width, canvasElement.height);
