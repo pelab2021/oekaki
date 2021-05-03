@@ -346,6 +346,10 @@ recognition.addEventListener('result', function (event) {
         times++;
         break;
       case 'ストップ':
+        document.getElementById("pen").classList.remove("valid");
+        document.getElementById("pen").classList.add("invalid");
+        document.getElementById("eraser").classList.remove("valid");
+        document.getElementById("eraser").classList.add("invalid");
         line_on = false; //一度 line_on = falseにすると動かなくなってしまう
         times++;
         break;
