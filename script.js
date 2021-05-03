@@ -11,7 +11,7 @@ const loudnessElement = document.getElementById("loudness")
 
 
 // 設定パラメータ
-let line_thickness = 10; // 線の太さ
+let line_thickness = 15; // 線の太さ
 let line_color = [255,255,255,255]; //RGBA
 let line_on = false; // ペン/消しゴム の線を描画するかどうか
 let erase_mode = false; // ペンを使うか消しゴムを使うか
@@ -318,6 +318,8 @@ recognition.addEventListener('result', function (event) {
     console.log(event.results);
     
     let text = event.results[times][0].transcript;
+    if (text == '進') text = "進む";
+
     elmResult.value = text;
     
     const shineButton = (id) => {
@@ -329,24 +331,30 @@ recognition.addEventListener('result', function (event) {
 
     switch(text){
 
-      case '鉛筆':
+      case 'スタート':
         erase_mode = false;
         line_on = true;
         document.getElementById("pen").click();
+        // shineButton('pen');
         times++;
         break;
       case '消しゴム':
         erase_mode = true;
         line_on = true;
         document.getElementById("eraser").click();
+        // shineButton('eraser');
         times++;
         break;
-      case 'なし':
+      case 'ストップ':
+        document.getElementById("pen").classList.remove("valid");
+        document.getElementById("pen").classList.add("invalid");
+        document.getElementById("eraser").classList.remove("valid");
+        document.getElementById("eraser").classList.add("invalid");
         line_on = false; //一度 line_on = falseにすると動かなくなってしまう
         times++;
         break;
       case '太い':
-        line_thickness = 15;
+        line_thickness = 30;
         times++;
         break;
       case '細い':
@@ -354,7 +362,7 @@ recognition.addEventListener('result', function (event) {
         times++;
         break;
       case '普通':
-        line_thickness = 10;
+        line_thickness = 15;
         times++;
         break;
       case '赤':
@@ -393,22 +401,22 @@ recognition.addEventListener('result', function (event) {
         line_color = [0,0,0,255];
         times++;
         break;
-        case '保存する':
+        case 'セーブ':
         save_paint();
         shineButton('save_button');
         times++;
         break;
-      case '勧める':
+      case '進む':
         forward_button_cnt += 1;
         shineButton('forward_button');
         times++;
         break;
-      case '戻す':
+      case '戻る':
         back_button_cnt += 1;
         shineButton('back_button');
         times++;
         break;
-      case '全部消す':
+      case 'クリア':
         clear_flag = true;
         shineButton('clear_button');
         times++;
