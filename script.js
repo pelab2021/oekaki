@@ -265,6 +265,51 @@ document.getElementById("save_button").onclick = () => {
   save_paint()
 }
 
+document.getElementById("upload_button").onclick = () => {
+  const sendData = canvasElement.toDataURL("image/png");
+  const fullScreen = document.createElement("div");
+  fullScreen.id = "uploadFullscreen";
+  fullScreen.style.cssText = "position: fixed; height: 100%; width: 100%; z-index: 10;";
+  fullScreen.innerHTML = `
+    <div style="margin: -200px 0 0 -150px; height: 400px; width: 300px; z-index: 20; position: absolute; left: 50%; top: 50%; background-color: gray;">
+      <div>アップロード</div>
+      <div><img src=${sendData} height="300px" width="300px"></div>
+      <div>
+        <input type="button" value="アップロード" id="uploadPost">
+        <input type="button" value="キャンセル" id="uploadCancel">
+      </div>
+    </div>
+  `;
+  document.body.appendChild(fullScreen);
+  document.getElementById("uploadCancel").onclick = () => {
+    fullScreen.remove();
+  };
+  document.getElementById("uploadPost").addEventListener("click", () => {
+    const url = "http://54.95.100.251:3000/upload";
+    const param = {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({data: sendData})
+    };
+    fetch(url, param).then((response) => {
+      if(!response.ok){
+        console.log('error!');
+      }
+      console.log(response);
+      return response.text();
+    }).then((data) => {
+      const jsonData = JSON.parse(data);
+      alert(`Your Image was saved as ${jsonData["filename"]}`);
+    }).catch((error) => {
+      alert("送信に失敗しました");
+      console.log(`[error] ${error}`);
+    });
+  });
+}
+
 document.getElementById("eraser").onclick = () => {
   document.getElementById("eraser").classList.remove("invalid");
   document.getElementById("eraser").classList.add("valid");
