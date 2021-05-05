@@ -246,7 +246,7 @@ button.valid:hover {
   z-index: 2147483647;
 }
 .start_message{
-  font-size: 100px;
+  font-size: 60px;
   position: absolute;
   top: 50%;
   left: 50%;

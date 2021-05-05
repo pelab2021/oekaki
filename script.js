@@ -363,7 +363,7 @@ recognition.addEventListener('result', function (event) {
     console.log(event.results);
     
     let text = event.results[times][0].transcript;
-    if (text == '進') text = "進む";
+    if (text == '進') text = "すすむ";
 
     elmResult.value = text;
     
@@ -375,7 +375,6 @@ recognition.addEventListener('result', function (event) {
     }
 
     switch(text){
-
       case 'スタート':
         erase_mode = false;
         line_on = true;
@@ -395,7 +394,7 @@ recognition.addEventListener('result', function (event) {
         document.getElementById("pen").classList.add("invalid");
         document.getElementById("eraser").classList.remove("valid");
         document.getElementById("eraser").classList.add("invalid");
-        line_on = false; //一度 line_on = falseにすると動かなくなってしまう
+        line_on = false;
         times++;
         break;
       case '太い':
