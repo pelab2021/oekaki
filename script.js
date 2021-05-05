@@ -311,12 +311,18 @@ document.getElementById("upload_button").onclick = () => {
 }
 
 document.getElementById("eraser").onclick = () => {
+  erase_mode = true;
+  line_on = true;
+  times++;
   document.getElementById("eraser").classList.remove("invalid");
   document.getElementById("eraser").classList.add("valid");
   document.getElementById("pen").classList.remove("valid");
   document.getElementById("pen").classList.add("invalid");
 }
 document.getElementById("pen").onclick = () => {
+  erase_mode = false;
+  line_on = true;
+  times++;
   document.getElementById("pen").classList.remove("invalid");
   document.getElementById("pen").classList.add("valid");
   document.getElementById("eraser").classList.remove("valid");
@@ -376,18 +382,16 @@ recognition.addEventListener('result', function (event) {
 
     switch(text){
       case 'スタート':
-        erase_mode = false;
-        line_on = true;
+        // erase_mode = false;
+        // line_on = true;
         document.getElementById("pen").click();
-        // shineButton('pen');
-        times++;
+        // times++;
         break;
       case '消しゴム':
-        erase_mode = true;
-        line_on = true;
+        // erase_mode = true;
+        // line_on = true;
         document.getElementById("eraser").click();
-        // shineButton('eraser');
-        times++;
+        // times++;
         break;
       case 'ストップ':
         document.getElementById("pen").classList.remove("valid");
