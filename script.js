@@ -311,23 +311,61 @@ document.getElementById("upload_button").onclick = () => {
 }
 
 document.getElementById("eraser").onclick = () => {
-  erase_mode = true;
-  line_on = true;
-  times++;
-  document.getElementById("eraser").classList.remove("invalid");
-  document.getElementById("eraser").classList.add("valid");
+  if (document.getElementById("eraser").classList.contains("valid")) {
+    document.getElementById("eraser").classList.remove("valid");
+    document.getElementById("eraser").classList.add("invalid");
+    erase_mode = false;
+    line_on = false;
+  }
+  else {
+    document.getElementById("eraser").classList.remove("invalid");
+    document.getElementById("eraser").classList.add("valid");
+    erase_mode = true;
+    line_on = true;
+  }
   document.getElementById("pen").classList.remove("valid");
   document.getElementById("pen").classList.add("invalid");
-}
-document.getElementById("pen").onclick = () => {
-  erase_mode = false;
-  line_on = true;
   times++;
-  document.getElementById("pen").classList.remove("invalid");
-  document.getElementById("pen").classList.add("valid");
+}
+
+document.getElementById("pen").onclick = () => {
+  if (document.getElementById("pen").classList.contains("valid")) {
+    document.getElementById("pen").classList.remove("valid");
+    document.getElementById("pen").classList.add("invalid");
+    erase_mode = false;
+    line_on = false;
+  }
+  else {
+    document.getElementById("pen").classList.add("valid");
+    document.getElementById("pen").classList.remove("invalid");
+    erase_mode = false;
+    line_on = true;
+  }
+
   document.getElementById("eraser").classList.remove("valid");
   document.getElementById("eraser").classList.add("invalid");
+  times++;
 }
+
+// document.getElementById("eraser").onclick = () => {
+//   erase_mode = true;
+//   line_on = true;
+//   times++;
+//   document.getElementById("eraser").classList.remove("invalid");
+//   document.getElementById("eraser").classList.add("valid");
+//   document.getElementById("pen").classList.remove("valid");
+//   document.getElementById("pen").classList.add("invalid");
+// }
+// document.getElementById("pen").onclick = () => {
+//   erase_mode = false;
+//   line_on = true;
+//   times++;
+//   document.getElementById("pen").classList.remove("invalid");
+//   document.getElementById("pen").classList.add("valid");
+//   document.getElementById("eraser").classList.remove("valid");
+//   document.getElementById("eraser").classList.add("invalid");
+// }
+
 document.getElementById("clear_button").onclick = () => {
   clear_flag = true;
 }
@@ -449,7 +487,23 @@ recognition.addEventListener('result', function (event) {
         line_color = [0,0,0,255];
         times++;
         break;
-        case 'セーブ':
+      case 'ピンク':
+        line_color = [255,20,147,255];
+        times++;
+        break;
+      case 'うすだいだい': //肌色
+        line_color = [254,220,189,255];
+        times++;
+        break;
+      case '茶色':
+        line_color = [103,67,45,255];
+        times++;
+        break;
+      case '灰色':
+        line_color = [117,117,117,255];
+        times++;
+        break;
+      case 'セーブ':
         save_paint();
         shineButton('save_button');
         times++;
