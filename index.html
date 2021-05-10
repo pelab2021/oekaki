@@ -94,13 +94,60 @@
     <button id="save_button">セーブ</button>
     <button id="clear_button">ぜんぶけす</button>
     <button id="upload_button">アップ</button>
+    <button id="help_button">?</button>
     </div>
     <div id="buttonBar2" class="buttonBar">
     <!-- <button id="recognitionStart">認識開始</button>
     <button id="recognitionEnd">認識終了</button> -->
-    <button id="eraser" class="invalid"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="icon" x="0px" y="0px" viewBox="0 0 1000 1000" style="enable-background:new 0 0 1000 1000;" xml:space="preserve"> <path d="M535.6,783.4l14.1,14.1l381.8-381.8L612.2,96.3L230.3,478.2l14.1,14.1L131.3,605.4c-31.2,31.2-31.2,81.9,0,113.1L312.7,900 H760v-40H459L535.6,783.4z M612.2,152.9L875,415.7L549.7,741L286.9,478.2L612.2,152.9z M402.4,860h-73.1L159.6,690.3 c-15.6-15.6-15.6-41,0-56.6l113.1-113.1l234.6,234.6L402.4,860z"></path> </svg> </button>
-    <button id="pen" class="invalid"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="icon" x="0px" y="0px" viewBox="0 0 1000 1000" style="enable-background:new 0 0 1000 1000;" xml:space="preserve"> <path d="M366.3,769.4c19,19,48.6,12.2,58.8-23.1l8.2-31.6l40.9-40.9c25.6-5.7,34.3-6,47.4-19.1L754.3,422 C873.3,302.9,921.5,205,936.9,168.6c13.8-32.7,8.6-64.5-12.9-86l0,0l0,0l0,0l0,0c-21.5-21.5-53.3-26.6-86-12.9 C801.5,85,703.6,133.2,584.6,252.3L351.9,485c-13.1,13.1-13.4,21.7-19.1,47.4l-40.9,40.9l-31.6,8.2c-35.3,10.1-42.1,39.8-23.1,58.8 l4.1,4.1l-127.1,76.3L80,907.4l19.2,19.2L286,892.5l76.3-127.1L366.3,769.4z M612.9,280.6c92.5-92.5,177.1-149,241.2-174.7 c10.2-4.1,28.7-10.8,43,3.5c14.3,14.3,7.6,32.9,3.5,43c-25.7,64.2-82.2,148.8-174.7,241.2L515.3,604.3L402.2,491.2L612.9,280.6z M142.7,881.5l81.8-81.8c8.3,2.2,17.6,0.1,24.1-6.5c9.8-9.8,9.8-25.6,0-35.4l0,0l0,0l0,0l0,0c-9.8-9.8-25.6-9.8-35.4,0 c-6.5,6.5-8.7,15.8-6.5,24.1l-81.8,81.8L150,745.7l120.4-72.2l62.8,62.8l-72.2,120.4L142.7,881.5z M270.2,618.1l42.8-9.4l56.6-56.6 l6.2-32.1l110.8,110.8l-32.1,6.2l-56.6,56.6l-9.4,42.8L270.2,618.1z"></path> </svg> </button>
+    <button id="eraser" class="invalid"><img src="png/eraser.png" height="24px" width="24px"></button>
+    <button id="pen" class="invalid"><img src="png/pen.png" height="24px" width="24px"></button>
+    
     <input type="text" id="recognitionResult">
+    <div id="voice_command" class="color_white">
+        <div style="padding: 8px;">音声コマンド</div>
+        <table id="voice_command_all">
+            <thead>
+                <tr><th>音声</th><th></th><th>動作</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>スタート</td><td></td><td>お絵描きを始める</td></tr>
+                <tr><td>ストップ</td><td></td><td>お絵描きを中断する</td></tr>
+                <tr><td>消しゴム</td><td></td><td>消しゴムモードにする</td></tr>
+                <tr><td>太い</td><td></td><td>線を太くする</td></tr>
+                <tr><td>細い</td><td></td><td>線を細くする</td></tr>
+                <tr><td>普通</td><td></td><td>線を普通にする</td></tr>
+                <tr><td>セーブ</td><td></td><td>描いた絵を保存する</td></tr>
+                <tr><td>クリア</td><td></td><td>描いた絵をすべて消す</td></tr>
+                <tr><td>戻る</td><td></td><td>直前のお絵描きを取り消す</td></tr>
+                <tr><td>進む</td><td></td><td>直前に取り消したお絵描きを元に戻す</td></tr>
+                <tr><td>（色）</td><td></td><td>（色）に変える<br>赤/オレンジ/黄/緑/水色/青/紫/白/黒</td></tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!--
+    <div id="voice_command" class="color_white">
+        <div style="padding: auto;">音声コマンド</div>
+        <table id="voice_command_all">
+            
+        </table>
+    </span>
+    -->
+    <!-- <input type="button" id="voice_command" class="color_white" value="音声コマンド"> -->
+    </div>
+    <div id="buttonBar3" class="buttonBar">
+        <input type="button" id="current_color" class="color_white" value="色">
+        <span id="unused_color">
+            <input type="button" class="colors color_red" value="赤">
+            <input type="button" class="colors color_orange" value="オレンジ">
+            <input type="button" class="colors color_yellow" value="黄">
+            <input type="button" class="colors color_green" value="緑">
+            <input type="button" class="colors color_lightblue" value="水色">
+            <input type="button" class="colors color_blue" value="青">
+            <input type="button" class="colors color_purple" value="紫">
+            <input type="button" class="colors color_white" value="白">
+            <input type="button" class="colors color_black" value="黒">
+        </span>
     </div>
   <!-- <button id="susresBtn">toggle audio context</button>  -->
 </div>

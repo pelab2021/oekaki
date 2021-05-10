@@ -269,14 +269,17 @@ document.getElementById("upload_button").onclick = () => {
   const sendData = canvasElement.toDataURL("image/png");
   const fullScreen = document.createElement("div");
   fullScreen.id = "uploadFullscreen";
-  fullScreen.style.cssText = "position: fixed; height: 100%; width: 100%; z-index: 10;";
+  fullScreen.style.cssText = "position: fixed; height: 100%; width: 100%;";
   fullScreen.innerHTML = `
-    <div style="margin: -200px 0 0 -150px; height: 400px; width: 300px; z-index: 20; position: absolute; left: 50%; top: 50%; background-color: gray;">
-      <div>アップロード</div>
-      <div><img src=${sendData} height="300px" width="300px"></div>
+    <div id="uploadArea">
+    <h3>作った絵をアップロードしよう！</h3>  
+    <div>絵をアップロードするとホームページ内を絵が泳ぎます。</div>
+    <div>ほかの人にも自分の作品をじまんしよう！</div>
+      <div><img src=${sendData} height="360px" width="640px" id="imgArea"></div>
       <div>
-        <input type="button" value="アップロード" id="uploadPost">
-        <input type="button" value="キャンセル" id="uploadCancel">
+        <input type="text" placeholder="ニックネーム" id="uploadName" size="20">
+        <button id="uploadPost">アップロード</button>
+        <button id="uploadCancel">キャンセル</button>
       </div>
     </div>
   `;
@@ -285,6 +288,8 @@ document.getElementById("upload_button").onclick = () => {
     fullScreen.remove();
   };
   document.getElementById("uploadPost").addEventListener("click", () => {
+    const nickname = document.getElementById("uploadName").value;
+
     const url = "http://54.95.100.251:3000/upload";
     const param = {
       method: "POST",
@@ -292,7 +297,7 @@ document.getElementById("upload_button").onclick = () => {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({data: sendData})
+      body: JSON.stringify({data: sendData, nickname: nickname})
     };
     fetch(url, param).then((response) => {
       if(!response.ok){
@@ -302,9 +307,11 @@ document.getElementById("upload_button").onclick = () => {
       return response.text();
     }).then((data) => {
       const jsonData = JSON.parse(data);
-      alert(`Your Image was saved as ${jsonData["filename"]}`);
+      alert("アップロードできました！");
+      console.log(`Your Image was saved as ${jsonData["filename"]}`);
+      document.getElementById("uploadFullscreen").remove();
     }).catch((error) => {
-      alert("送信に失敗しました");
+      alert("アップロードに失敗しました");
       console.log(`[error] ${error}`);
     });
   });
@@ -334,6 +341,7 @@ document.getElementById("clear_button").onclick = () => {
 
 document.getElementById("fullOverlay").onclick = async () => {
   document.getElementById("fullOverlay").remove()
+  document.getElementById("help_button").click();
   await audioCtx.resume()
   await audio_init()
   console.log("audio context is resumed")
@@ -364,6 +372,18 @@ recognition.lang = 'ja';
 recognition.continuous = true;
 
 let times = 0;
+
+const colorList = {
+  "red": [255,0,0,255],
+  "orange": [255,165,0,255],
+  "yellow": [255,255,0,255],
+  "green": [0,128,0,255],
+  "lightblue": [0,255,255,255],
+  "blue": [0,0,255,255],
+  "purple": [128,0,128,255],
+  "white": [255,255,255,255],
+  "black": [0,0,0,255]
+};
 
 recognition.addEventListener('result', function (event) {
     console.log(event.results);
@@ -491,3 +511,94 @@ elmEnd.addEventListener('click', function () {
     recognition.stop();
 }, false);
 */
+
+// ヘルプ画面の表示
+document.getElementById("help_button").addEventListener("click", () => {
+
+  let helpWindow = document.createElement("div");
+  helpWindow.style.cssText = "position: absolute; height: 100%; width: 100%; z-index: 10; background-color: gray; opacity: 0.8;";
+  
+  helpWindow.innerHTML = `
+    <h2 style="position: absolute; top: 3%; left: 80%;"><a id="windowCloser" style="text-decoration: underline; cursor: pointer;">×とじる</a></h2>
+    <h1 style="position: relative; top: 8%; text-align: center;">おえかきひろばへようこそ！</h1>
+    <div style="position: relative; top: 10%; text-align: center;">
+      <a class="helpNum">　1　</a>
+      <a class="helpNum">　2　</a>
+      <a class="helpNum">　3　</a>
+      <a class="helpNum">　4　</a>
+      <a class="helpNum">　5　</a>
+      <a class="helpNum">　6　</a>
+      <a class="helpNum">　7　</a>
+      <a class="helpNum">　8　</a>
+      <a class="helpNum">　9　</a>
+    </div>
+    <div id="helpContent"></div>
+  `;
+  document.body.appendChild(helpWindow);
+
+  let helpContents = [
+    `<div class="helpContents"><p>カメラとマイクをONにしましょう！</p></div>`,
+    `<div class="helpContents">
+      <p>カメラの<ruby><rb>前</rb><rt>まえ</rt></ruby>に<ruby><rb>指</rb><rt>ゆび</rt></ruby>を出すことで、カメラが指を<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
+      <img src="png/select.png" height="128px" width="128px">
+      </div>`,
+    `<div class="helpContents">
+      <p><ruby><rb>両手</rb><rt>りょうて</rt></ruby>を出すと、どちらの指も<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
+      <img src="png/select2.png" height="128px" width="128px">
+      <img src="png/select.png" height="128px" width="128px">
+      </div>`,
+    `<div class="helpContents">
+      <p><img src="png/penb.png"><span>をクリックして指を出すと絵が<ruby><rb>描</rb><rt>か</rt></ruby>けます。</span></p>
+    </div>`,
+    `<div class="helpContents">
+      <p><img src="png/eraserb.png"><span>をクリックして指を出すと描いたものを<ruby><rb>消</rb><rt>け</rt></ruby>せます。</span></p>
+    </div>`,
+    `<div class="helpContents">
+      <p><img src="png/color.png"><span>をクリックすると色を<ruby><rb>変</rb><rt>か</rt></ruby>えられます。</span></p>
+    </div>`,
+    `<div class="helpContents">
+      <p><img src="png/save.png"><span>をクリックすると描いた絵を<ruby><rb>保存</rb><rt>ほぞん</rt></ruby>できます。</span></p>
+    </div>`,
+    `<div class="helpContents">
+      <p><img src="png/upload.png"><span>をクリックすると描いた絵をアップロードできます。</span></p>
+      <p>みんなに描いた絵をじまんしよう。</p>
+    </div>`,
+    `<div class="helpContents">
+      <p>声を出すとそれに<ruby><rb>反応</rb><rt>はんのう</rt></ruby>します。まずはスタートと言ってみよう！</p>
+    </div>`
+  ];
+
+  const helpers = document.querySelectorAll(".helpNum");
+  for(let i = 0; i < helpers.length; i++){
+    helpers[i].addEventListener("click", () => {
+      if(document.getElementById("selectedHelp")) document.getElementById("selectedHelp").removeAttribute("id");
+      document.getElementById("helpContent").innerHTML = helpContents[i];
+      helpers[i].id = "selectedHelp";
+    });
+  }
+
+  document.getElementById("windowCloser").addEventListener("click", () => {
+    helpWindow.remove();
+  });
+  document.getElementsByClassName("helpNum")[0].click();
+
+  let currentHelp = 0;
+  document.addEventListener("keydown", e => {
+    if(e.key === "ArrowRight" && currentHelp <= 7){
+      document.getElementsByClassName("helpNum")[++currentHelp].click();
+    }
+    if(e.key === "ArrowLeft" && currentHelp >= 1){
+      document.getElementsByClassName("helpNum")[--currentHelp].click();
+    }
+  });
+});
+
+let colorbuttons = document.querySelectorAll(".colors");
+for (let i = 0; i < colorbuttons.length; i++) {
+  colorbuttons[i].addEventListener("click", (e) => {
+    const selectedColor = e.target.classList[1].split("_")[1];
+    line_color = colorList[selectedColor];
+    document.getElementById("current_color").className = `color_${selectedColor}`;
+  })
+}
+

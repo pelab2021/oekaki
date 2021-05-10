@@ -148,10 +148,9 @@ body {
 */
 
 .buttonBar {
-  width: 500px;
+  width: 800px;
   position: absolute;
   left: 0;
-  
   color:black;
 }
 #buttonBar1 {
@@ -159,6 +158,17 @@ body {
 }
 #buttonBar2 {
   top: 50px;
+}
+
+#buttonBar2 button{
+  vertical-align: top;
+}
+#buttonBar2 input[type="text"]{
+  vertical-align: top;
+}
+
+#buttonBar3 {
+  top: 100px;
 }
 /*
 #clear_button{
@@ -180,7 +190,7 @@ button {
   background-color: #ff00ff;
   box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
   font-size: 0.875rem;
-  min-width: 64px;
+  /*min-width: 64px;*/
   box-sizing: border-box;
   font-family: "Roboto", "Helvetica", "Arial", sans-serif;
   font-weight: 500;
@@ -276,3 +286,168 @@ button.valid:hover {
   color:black;
 }
 */
+
+input[type="button"] {
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  outline: 0;
+  padding: 8px 20px;
+  box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
+  font-size: 0.875rem;
+  box-sizing: border-box;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 500;
+  line-height: 1.75;
+  border-radius: 4px;
+  letter-spacing: 0.02857em;
+  text-align: center;
+}
+input[type="text"]{
+  margin: 6px;
+  padding: 8px 10px;
+  border-radius: 4px;
+}
+
+#uploadArea{
+  padding: 5px;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+  height: 550px;
+  width: 660px;
+  position: absolute;
+  background-color: #bbbbbb;
+}
+
+#imgArea{
+  display: block;
+  border: solid 1px black;
+  margin: 5px auto;
+}
+
+#voice_command{
+  position: relative;
+  border-radius: 4px;
+  width: 150px;
+  display: inline-block;
+  text-align: center;
+  height: 40px;
+  transition: width 0.5s ease 0s, height 0.5s ease 0s;
+}
+#voice_command:hover{
+  width: 400px;
+  height: 500px;
+}
+
+#voice_command_all{
+  position: relative;
+  opacity: 0;
+  display: inline-block;
+  margin: 5px;
+  transition: opacity 0.5s ease 0s;
+}
+#voice_command:hover #voice_command_all{
+  opacity: 1;
+  transition: opacity 0.5s ease 0.5s;
+}
+
+.helpNum{
+  border-radius: 5px;
+  background-color: #bebebe;
+  cursor: pointer;
+}
+#selectedHelp{
+  background-color: #ff00ff;
+}
+
+#unused_color{
+  position: relative;
+  left: -700px;
+  transition: left 0.5s ease 0s;
+  z-index: 0;
+}
+
+#current_color{
+  position: relative;
+  z-index: 10;
+}
+
+#current_color:hover + #unused_color{
+  left: 0px;
+}
+#unused_color:hover{
+  left: 0px;
+}
+.colors{
+  opacity: 0.7;
+}
+.colors:hover{
+  opacity: 1;
+}
+
+.helpContents{
+  position: absolute;
+  top: 30%;
+  width: 100%;
+  text-align: center;
+}
+.helpContents img{
+  vertical-align: middle;
+  margin-right: 5px;
+}
+.helpContents p{
+  font-size: 24px;
+}
+.helpContents span{
+  font-size: 24px;
+  vertical-align: middle;
+}
+
+.color_red{
+  background-color: red;
+  color: white;
+}
+.color_orange{
+  background-color: orange;
+}
+.color_yellow{
+  background-color: yellow;
+}
+.color_green{
+  background-color: green;
+  color: white;
+}
+.color_blue{
+  background-color: blue;
+  color: white;
+}
+.color_lightblue{
+  background-color: lightblue;
+}
+.color_purple{
+  background-color: purple;
+  color: white;
+}
+.color_white{
+  background-color: white;
+}
+.color_black{
+  background-color: black;
+  color: white;
+}
+
+th{
+  text-align: center;
+}
+tr td:nth-of-type(1){
+  text-align: right;
+}
+tr td:nth-of-type(2){
+  width: 10px;
+}
+tr td:nth-of-type(3){
+  text-align: left;
+}
