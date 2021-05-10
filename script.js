@@ -420,7 +420,11 @@ const colorList = {
   "blue": [0,0,255,255],
   "purple": [128,0,128,255],
   "white": [255,255,255,255],
-  "black": [0,0,0,255]
+  "black": [0,0,0,255],
+  "pink": [255,20,147,255],
+  "paleorange": [254,220,189,255],
+  "brown": [103,67,45,255],
+  "gray": [117,117,117,255]
 };
 
 recognition.addEventListener('result', function (event) {
