@@ -336,10 +336,17 @@ input[type="text"]{
   text-align: center;
   height: 40px;
   transition: width 0.5s ease 0s, height 0.5s ease 0s;
+  pointer-events: none;
 }
 #voice_command:hover{
   width: 400px;
-  height: 500px;
+  height: 450px;
+  pointer-events: auto;
+}
+
+#voice_command_title{
+  padding: 8px;
+  pointer-events: auto;
 }
 
 #voice_command_all{
@@ -392,7 +399,6 @@ input[type="text"]{
   position: absolute;
   top: 30%;
   width: 100%;
-  text-align: center;
 }
 .helpContents img{
   vertical-align: middle;
@@ -404,6 +410,13 @@ input[type="text"]{
 .helpContents span{
   font-size: 24px;
   vertical-align: middle;
+}
+.helpContents_center{
+  text-align: center;
+}
+.helpContents_left{
+  left: 30%;
+  text-align: left;
 }
 
 .color_red{
