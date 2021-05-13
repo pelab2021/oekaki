@@ -256,9 +256,9 @@ class Fish{
     return this.elem.height/ this.parent.clientHeight * 100
   }
   reflect(){
-    if (this.x + this.width > 100) this.Vx = Math.abs(this.Vx) * (-1);
+    if (this.x + this.width > 95) this.Vx = Math.abs(this.Vx) * (-1);
     if (this.x < 0) this.Vx = Math.abs(this.Vx);
-    if (this.y + this.width > 100) this.Vy = Math.abs(this.Vy) * (-1);
+    if (this.y + this.width > 95) this.Vy = Math.abs(this.Vy) * (-1);
     if (this.y < 0) this.Vy = Math.abs(this.Vy);
   }
   moveImg(){

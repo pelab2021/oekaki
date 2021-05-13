@@ -388,11 +388,15 @@ const colorList = {
   "brown": [103,67,45,255],
   "gray": [117,117,117,255]
 };
-
+/*
 const thickList = {
   "bold": [150,150,150,255],
   "normal": [100,100,100,255],
   "thin": [50,50,50,255]
+};
+*/
+const thickList = {
+  "thick": 30, "medium": 15, "thin": 5
 };
 
 recognition.addEventListener('result', function (event) {
@@ -555,7 +559,6 @@ document.getElementById("help_button").addEventListener("click", () => {
   if(!isFullScreen) helpWindow.style.cssText += "transform: scale(0.65);";
   */
   helpWindow.innerHTML = `
-    <p style="position: absolute; top: 0; left: 65%;">↑カメラとマイクをONにしましょう！</p>
     <h2 style="position: absolute; top: 5%; left: 80%;"><a id="windowCloser" style="text-decoration: underline; cursor: pointer;">×とじる</a></h2>
     <h1 style="position: absolute; top: 10%; width: 100%; text-align: center;">おえかきひろばへようこそ！</h1>
     <div style="position: absolute; top: 25%; width: 100%; text-align: center;">
@@ -570,6 +573,7 @@ document.getElementById("help_button").addEventListener("click", () => {
 
   let helpContents = [
     `<div class="helpContents helpContents_center">
+      <p>カメラとマイクをONにしましょう！</p>
       <p>カメラの<ruby><rb>前</rb><rt>まえ</rt></ruby>に<ruby><rb>指</rb><rt>ゆび</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すことで、カメラが<ruby><rb>指</rb><rt>ゆび</rt></ruby>を<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
       <p><ruby><rb>両手</rb><rt>りょうて</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すと、どちらの<ruby><rb>指</rb><rt>ゆび</rt></ruby>も<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
       <img src="png/select2.png" height="128px" width="128px">
@@ -628,11 +632,12 @@ for (let i = 0; i < colorbuttons.length; i++) {
 let thicknessbuttons = document.querySelectorAll(".thicknesses");
 for (let i = 0; i < thicknessbuttons.length; i++) {
   thicknessbuttons[i].addEventListener("click", (e) => {
-    let selectedThickness = Object.keys(thickList)[i];
-    console.log(i);
-    console.log(thickList[selectedThickness]);
-    line_thickness = [30, 15, 5][i];
-    document.getElementById("current_thickness").className = `color_${selectedThickness}`;
+    const selectedThickness = e.target.classList[2];
+    // console.log(i);
+    // console.log(thickList[selectedThickness]);
+    line_thickness = thickList[selectedThickness];
+    // document.getElementById("current_thickness").className = `color_${selectedThickness}`;
+    document.getElementById("current_thickness").className = `color_white thicknesses ${selectedThickness}`;
 })
 }
 

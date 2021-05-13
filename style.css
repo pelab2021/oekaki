@@ -309,7 +309,7 @@ input[type="button"] {
   letter-spacing: 0.02857em;
   text-align: center;
 }
-input[type="button"]:not(.colors){
+input[type="button"]:not(.colors, .thicknesses){
   padding: 8px 20px;
 }
 
@@ -350,7 +350,7 @@ input[type="text"]{
 }
 #voice_command:hover{
   width: 450px;
-  height: 500px;
+  height: 550px;
   pointer-events: auto;
 }
 
@@ -403,6 +403,15 @@ input[type="text"]{
 }
 .colors:hover{
   opacity: 1;
+}
+.thick{
+  padding: 12px 20px;
+}
+.medium{
+  padding: 6px 20px;
+}
+.thin{
+  padding: 0px 20px;
 }
 
 
