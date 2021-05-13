@@ -163,9 +163,10 @@ class fpsCheck {
 }
 
 let fpsch = new fpsCheck((_fpsch) => {
-  document.getElementById("fps_display").innerHTML = _fpsch.fps.toString() + " fps"
+  // document.getElementById("fps_display").innerHTML = _fpsch.fps.toString() + " fps"
 })
 fpsch.start();
+
 
 let loop_cnt = 0;
 let render_loop_cnt = 0;
@@ -270,6 +271,7 @@ document.getElementById("upload_button").onclick = () => {
   const fullScreen = document.createElement("div");
   fullScreen.id = "uploadFullscreen";
   fullScreen.style.cssText = "position: fixed; height: 100%; width: 100%;";
+  
   fullScreen.innerHTML = `
     <div id="uploadArea">
     <h3>作った絵をアップロードしよう！</h3>  
@@ -284,6 +286,10 @@ document.getElementById("upload_button").onclick = () => {
     </div>
   `;
   document.body.appendChild(fullScreen);
+  
+  let isFullScreen = !Boolean(document.getElementById("wholeWrapper").style.transform);
+  if(!isFullScreen) document.getElementById("uploadArea").style.cssText += "transform: scale(0.65);";
+  
   document.getElementById("uploadCancel").onclick = () => {
     fullScreen.remove();
   };
@@ -574,13 +580,16 @@ elmEnd.addEventListener('click', function () {
 document.getElementById("help_button").addEventListener("click", () => {
 
   let helpWindow = document.createElement("div");
-  helpWindow.style.cssText = "position: absolute; height: 100%; width: 100%; z-index: 10; background-color: gray; opacity: 0.8;";
-  
+  helpWindow.style.cssText = "position: relative; height: 100%; width: 100%; z-index: 10; background-color: gray; opacity: 0.8;";
+  /*
+  let isFullScreen = !Boolean(document.getElementById("wholeWrapper").style.transform);
+  if(!isFullScreen) helpWindow.style.cssText += "transform: scale(0.65);";
+  */
   helpWindow.innerHTML = `
-    <p style="position: absolute; top: 0; left: 70%;">↑カメラとマイクをONにしましょう！</p>
+    <p style="position: absolute; top: 0; left: 65%;">↑カメラとマイクをONにしましょう！</p>
     <h2 style="position: absolute; top: 5%; left: 80%;"><a id="windowCloser" style="text-decoration: underline; cursor: pointer;">×とじる</a></h2>
-    <h1 style="position: relative; top: 10%; text-align: center;">おえかきひろばへようこそ！</h1>
-    <div style="position: relative; top: 10%; text-align: center;">
+    <h1 style="position: absolute; top: 10%; width: 100%; text-align: center;">おえかきひろばへようこそ！</h1>
+    <div style="position: absolute; top: 25%; width: 100%; text-align: center;">
       <a class="helpNum">　1　</a>
       <a class="helpNum">　2　</a>
       <a class="helpNum">　3　</a>
@@ -644,4 +653,3 @@ for (let i = 0; i < colorbuttons.length; i++) {
     document.getElementById("current_color").className = `color_${selectedColor}`;
   })
 }
-

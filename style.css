@@ -364,15 +364,6 @@ input[type="text"]{
   transition: opacity 0.5s ease 0.5s;
 }
 
-.helpNum{
-  border-radius: 5px;
-  background-color: #bebebe;
-  cursor: pointer;
-}
-#selectedHelp{
-  background-color: #ff00ff;
-}
-
 #unused_color{
   position: relative;
   left: -800px;
@@ -399,6 +390,16 @@ input[type="text"]{
   opacity: 1;
 }
 
+
+.helpNum{
+  border-radius: 5px;
+  background-color: #bebebe;
+  cursor: pointer;
+}
+#selectedHelp{
+  background-color: #ff00ff;
+}
+
 .helpContents{
   position: absolute;
   top: 30%;
@@ -420,7 +421,7 @@ input[type="text"]{
   text-align: center;
 }
 .helpContents_left{
-  left: 30%;
+  left: 10%;
   text-align: left;
 }
 
