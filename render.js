@@ -109,7 +109,7 @@ const init = (success) => {
     //     new cv.Scalar(0, 0, 0, 255),
     //   ];  // RGBA
     opencv_loaded = true
-    console.log("Opencv.js loaded")
+    // console.log("Opencv.js loaded")
   } else {
     console.err("Opencv.js load failed")
 
@@ -161,6 +161,9 @@ const draw_calc = (line) => {
 }
 const imageDataFromMat = (mat) => {
   // convert the mat type to cv.CV_8U
+  if(!mat){
+    return null
+  }
   const img = new cv.Mat()
   const depth = mat.type() % 8
   const scale =
@@ -317,7 +320,12 @@ const onmessage_main = (render_data) => {
         draw_line(add_img, lines[hand_i][0], color, render_data.line_thickness)
       }
     }
-    draw_img(add_img, result_img)
+    draw_img(add_img, result_img);
+    let save_img = null;
+    if (render_data.save_img_request){
+      save_img = get_new_img()
+      cv.flip(result_img, save_img, 1);
+    }
 
     hand_points.forEach((p) => {
       cv.circle(result_img, p, 5, new cv.Scalar(255, 0, 0, 255), 5);
@@ -329,6 +337,7 @@ const onmessage_main = (render_data) => {
 
     postMessage({
       img: imageDataFromMat(send_img),
+      save_img: imageDataFromMat(save_img),
       loop_cnt: render_data.loop_cnt,
       draw: render_data.draw
     })
@@ -346,6 +355,7 @@ const onmessage_main = (render_data) => {
   } else {
     postMessage({
       img: null,
+      save_img: null,
       loop_cnt: render_data.loop_cnt,
       draw: render_data.draw
     })
