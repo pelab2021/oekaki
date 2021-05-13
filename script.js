@@ -1,18 +1,15 @@
-import {freelizer} from 'https://cdn.jsdelivr.net/npm/freelizer@1.0.0/index.min.js'
-
 const MAX_NUM_HANDS = 2;
 const MIC_THRESHOLD = 0.01
 
 const videoElement = document.getElementsByClassName('input_video')[0];
 const canvasElement = document.getElementsByClassName('output_canvas')[0];
-const canvasElementForSave = document.getElementsByClassName('output_canvas_for_save')[0];
 const canvasCtx = canvasElement.getContext('2d');
 const loudnessElement = document.getElementById("loudness")
 
 
 // 設定パラメータ
 let line_thickness = 15; // 線の太さ
-let line_color = [255,255,255,255]; //RGBA
+let line_color = [0,0,0,255]; //RGBA
 let line_on = false; // ペン/消しゴム の線を描画するかどうか
 let erase_mode = false; // ペンを使うか消しゴムを使うか
 
@@ -26,91 +23,39 @@ spinner.ontransitionend = () => {
   spinner.style.display = 'none';
 };
 
-let audio_data = {
-  on: true,
-  //0:白 1:赤 ... 8:黒
-  color_index: 0
-}
-
-
-let audioCtx = null
-let wavedata = null
-let analyser = null
-
-const audio_init = async () => {
-  audioCtx = new (window.AudioContext
-    || window.webkitAudioContext || window.mozAudioContext)();
-
-  analyser = audioCtx.createAnalyser();
-  wavedata = new Float32Array(analyser.fftSize);
-  analyser.fftSize = 512;
-  // analyser.connect(audioCtx.destination)
-  const mic_stream = await navigator.mediaDevices.getUserMedia({audio: true});
-  const mic_input = audioCtx.createMediaStreamSource(mic_stream);
-  mic_input.connect(analyser);
-}
-
-window.onload = async () => {
-  audio_init()
-}
-
-let on_pre = false
-const audio_data_update = (data) => {
-  // data例
-  //{
-  //   deviation: 28.924883259925537,
-  //   frequency: 1075.4271444623207,
-  //   note: "C",
-  //   noteFrequency: 1046.5022612023952,
-  //   octave: 6,
-  // }
-
-  let on = false
-  if (analyser != null) {
-    analyser.getFloatTimeDomainData(wavedata);
-    const max = wavedata.reduce((a, b) => Math.max(a, b))
-    loudnessElement.innerHTML = max
-    on = max > MIC_THRESHOLD
-  }
-  if (on && Object.keys(data).includes("frequency") && data["frequency"] != 21.55425219941349) {
-    audio_data.color_index = ((data.note.charCodeAt(0) - 65) + data.octave * 8) % 9;
-  }
-  audio_data.on = on | on_pre
-  on_pre = on
-}
-
-  ; (async () => {
-    try {
-      const {start, stop, subscribe, unsubscribe} = await freelizer()
-      start()
-      subscribe(audio_data_update)
-    } catch (error) {
-      console.error(error);
-    }
-  })()
-
-// // local fileを対象にworkerを起動すると出るエラーのための対処
-// // https://tshino.hatenablog.com/entry/20180106/1515218776
-// var newWorkerViaBlob = function(relativePath) {
-//   var baseURL = window.location.href.replace(/\\/g, '/').replace(/\/[^\/]*$/, '/');
-//   var array = ['importScripts("' + baseURL + relativePath + '");'];
-//   var blob = new Blob(array, {type: 'text/javascript'});
-//   var url = window.URL.createObjectURL(blob);
-//   return new Worker(url);
-// };
-// var newWorker = function(relativePath) {
-//   try {
-//     return newWorkerViaBlob(relativePath);
-//   } catch (e) {
-//     return new Worker(relativePath);
-//   }
-// };
 
 let render_worker = null;
 let camera_img_from_mediapipe = null;
 
-
+class SaveImgManager{
+  constructor(){
+    this.callbacks = []
+    this.requested = false
+    this.canvasElementForSave = document.getElementsByClassName('output_canvas_for_save')[0];
+  }
+  request(callback){
+    this.requested = true
+    this.callbacks.push(callback)
+  }
+  do_callback(save_img){
+    this.canvasElementForSave.getContext('2d').putImageData(save_img, 0, 0)
+    console.log(this.callbacks)
+    while(this.callbacks.length > 0){
+      let f = this.callbacks.pop()
+      f(this.canvasElementForSave);
+    }
+  }
+  pop_requst_flag(){
+    if(this.requested){
+      this.requested = false
+      return true
+    }
+    return false
+  }
+}
+let save_img_manager = new SaveImgManager()
 let oekaki_img = null;
+
 if (window.Worker) {
   render_worker = new Worker("render.js")
 
@@ -124,48 +69,51 @@ if (window.Worker) {
       canvasCtx.putImageData(oekaki_img, 0, 0)
       canvasCtx.restore();
     }
+    if(!(e.data.save_img==null)){
+      save_img_manager.do_callback(e.data.save_img)
+    }
   }
 
 } else {
   console.err("can't find window.Worker.");
 }
 //0.5秒ごとにfpsを計算して値を更新する
-class fpsCheck {
-  constructor(callback = null) {
-    this.counter = 0
-    this.intervalId = null;
-    this.fps = -1
-    //500ms
-    this.update_period = 500;
-    this.callback = callback
-  }
-  _update() {
-    this.fps = this.counter / (this.update_period / 1000)
-    this.counter = 0
-    this.callback(this)
-  }
-  start() {
-    if (this.intervalId == null) {
-      //0.5sごとにupdate
-      this.intervalId = setInterval(this._update.bind(this), this.update_period);
-    }
+// class fpsCheck {
+//   constructor(callback = null) {
+//     this.counter = 0
+//     this.intervalId = null;
+//     this.fps = -1
+//     //500ms
+//     this.update_period = 500;
+//     this.callback = callback
+//   }
+//   _update() {
+//     this.fps = this.counter / (this.update_period / 1000)
+//     this.counter = 0
+//     this.callback(this)
+//   }
+//   start() {
+//     if (this.intervalId == null) {
+//       //0.5sごとにupdate
+//       this.intervalId = setInterval(this._update.bind(this), this.update_period);
+//     }
 
-  }
-  stop() {
-    if (!(this.intervalId == null)) {
-      clearInterval(this.intervalId);
-    }
-    this.fps = -1;
-  }
-  tick() {
-    this.counter++;
-  }
-}
+//   }
+//   stop() {
+//     if (!(this.intervalId == null)) {
+//       clearInterval(this.intervalId);
+//     }
+//     this.fps = -1;
+//   }
+//   tick() {
+//     this.counter++;
+//   }
+// }
 
-let fpsch = new fpsCheck((_fpsch) => {
-  // document.getElementById("fps_display").innerHTML = _fpsch.fps.toString() + " fps"
-})
-fpsch.start();
+// let fpsch = new fpsCheck((_fpsch) => {
+//   document.getElementById("fps_display").innerHTML = _fpsch.fps.toString() + " fps"
+// })
+// fpsch.start();
 
 
 let loop_cnt = 0;
@@ -178,7 +126,7 @@ const onResults = (results) => {
     onresults_first = false
   }
 
-  fpsch.tick()
+  // fpsch.tick()
   camera_img_from_mediapipe = results.image
   const hands_found = results.multiHandLandmarks && results.multiHandedness
   const isRightHand = hands_found ?
@@ -190,7 +138,7 @@ const onResults = (results) => {
   let draw = (loop_cnt <= render_loop_cnt + 2);
   const render_data = {
     msg: "main",
-    audio_data: audio_data,
+    // audio_data: audio_data,
     hands_found: hands_found,
     isRightHand: isRightHand,
     landmarks: hands_found ? results.multiHandLandmarks : null,
@@ -204,6 +152,7 @@ const onResults = (results) => {
     line_thickness: line_thickness,
     line_color:line_color,
     loop_cnt: loop_cnt,
+    save_img_request:save_img_manager.pop_requst_flag(),
     draw:  draw//render_loop_cntが過度に遅れてる場合は描画をせずに点の記録に留める
   }
   render_worker.postMessage(render_data);
@@ -241,18 +190,16 @@ const camera = new Camera(videoElement, {
 });
 camera.start();
 
+
 const save_paint = () => {
-
-  if (!(oekaki_img == null)) {
-    canvasElementForSave.getContext('2d').putImageData(oekaki_img, 0, 0)
+  const save_paint_sub = (save_canvas_elem) => {
+    if (save_canvas_elem.toBlob) {
+      save_canvas_elem.toBlob((blob) => {
+        saveAs(blob, "oekaki.png");
+      }, "image/png");
+    }
   }
-
-  if (canvasElementForSave.toBlob) {
-    canvasElementForSave.toBlob((blob) => {
-      saveAs(blob, "oekaki.png");
-    }, "image/png");
-  }
-  canvasElementForSave.getContext('2d').clearRect(0, 0, canvasElement.width, canvasElement.height);
+  save_img_manager.request(save_paint_sub)
 }
 
 document.getElementById("back_button").onclick = () => {
@@ -266,17 +213,19 @@ document.getElementById("save_button").onclick = () => {
   save_paint()
 }
 
+
 document.getElementById("upload_button").onclick = () => {
-  const sendData = canvasElement.toDataURL("image/png");
-  const fullScreen = document.createElement("div");
-  fullScreen.id = "uploadFullscreen";
-  fullScreen.style.cssText = "position: fixed; height: 100%; width: 100%;";
+  const upload_img = (save_canvas_elem)=>{
+    const sendData = save_canvas_elem.toDataURL("image/png");
+    const fullScreen = document.createElement("div");
+    fullScreen.id = "uploadFullscreen";
+    fullScreen.style.cssText = "position: fixed; height: 100%; width: 100%;";
   
-  fullScreen.innerHTML = `
+    fullScreen.innerHTML = `
     <div id="uploadArea">
-    <h3>作った絵をアップロードしよう！</h3>  
-    <div>絵をアップロードするとホームページ内を絵が泳ぎます。</div>
-    <div>ほかの人にも自分の作品をじまんしよう！</div>
+      <h3><ruby><rb>作</rb><rt>つく</rt></ruby>った<ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードしよう！</h3>  
+      <div><ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードするとホームページ<ruby><rb>内</rb><rt>ない</rt></ruby>を<ruby><rb>絵</rb><rt>え</rt></ruby>が<ruby><rb>泳</rb><rt>およ</rt></ruby>ぎます。</div>
+      <div>ほかの人にも<ruby><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby><rb>作品</rb><rt>さくひん</rt></ruby>をじまんしよう！</div>
       <div><img src=${sendData} height="360px" width="640px" id="imgArea"></div>
       <div>
         <input type="text" placeholder="ニックネーム" id="uploadName" size="20">
@@ -285,42 +234,43 @@ document.getElementById("upload_button").onclick = () => {
       </div>
     </div>
   `;
-  document.body.appendChild(fullScreen);
+    document.body.appendChild(fullScreen);
   
-  let isFullScreen = !Boolean(document.getElementById("wholeWrapper").style.transform);
-  if(!isFullScreen) document.getElementById("uploadArea").style.cssText += "transform: scale(0.65);";
+    let isFullScreen = !Boolean(document.getElementById("wholeWrapper").style.transform);
+    if(!isFullScreen) document.getElementById("uploadArea").style.cssText += "transform: scale(0.65);";
   
-  document.getElementById("uploadCancel").onclick = () => {
-    fullScreen.remove();
-  };
-  document.getElementById("uploadPost").addEventListener("click", () => {
-    const nickname = document.getElementById("uploadName").value;
-
-    const url = "http://54.95.100.251:3000/upload";
-    const param = {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({data: sendData, nickname: nickname})
+    document.getElementById("uploadCancel").onclick = () => {
+      fullScreen.remove();
     };
-    fetch(url, param).then((response) => {
-      if(!response.ok){
-        console.log('error!');
-      }
-      console.log(response);
-      return response.text();
-    }).then((data) => {
-      const jsonData = JSON.parse(data);
-      alert("アップロードできました！");
-      console.log(`Your Image was saved as ${jsonData["filename"]}`);
-      document.getElementById("uploadFullscreen").remove();
-    }).catch((error) => {
-      alert("アップロードに失敗しました");
-      console.log(`[error] ${error}`);
+    document.getElementById("uploadPost").addEventListener("click", () => {
+      const nickname = document.getElementById("uploadName").value;
+      const url = "http://54.95.100.251:3000/upload";
+      const param = {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({data: sendData, nickname: nickname})
+      };
+      fetch(url, param).then((response) => {
+        if(!response.ok){
+          console.log('error!');
+        }
+        console.log(response);
+        return response.text();
+      }).then((data) => {
+        const jsonData = JSON.parse(data);
+        alert("アップロードできました！");
+        console.log(`Your Image was saved as ${jsonData["filename"]}`);
+        document.getElementById("uploadFullscreen").remove();
+      }).catch((error) => {
+        alert("アップロードに失敗しました");
+        console.log(`[error] ${error}`);
+      });
     });
-  });
+  }
+  save_img_manager.request(upload_img);
 }
 
 document.getElementById("eraser").onclick = () => {
@@ -383,14 +333,20 @@ document.getElementById("clear_button").onclick = () => {
   clear_flag = true;
 }
 
-document.getElementById("fullOverlay").onclick = async () => {
-  document.getElementById("fullOverlay").remove()
-  document.getElementById("help_button").click();
-  await audioCtx.resume()
-  await audio_init()
-  console.log("audio context is resumed")
-  // console.log("audio_init() is called")
+let is_recognition_stared = false;
+const recognition_start = async()=>{
+  // await audioCtx.resume()
+  // await audio_init()
+  recognition.start();
 }
+
+
+// document.getElementById("fullOverlay").onclick = async () => {
+//   document.getElementById("fullOverlay").remove()
+//   document.getElementById("help_button").click();
+//   recognition_start()
+// }
+
 // let susresBtn = document.getElementById("susresBtn")
 
 // susresBtn.onclick = function() {
@@ -433,11 +389,18 @@ const colorList = {
   "gray": [117,117,117,255]
 };
 
+const thickList = {
+  "bold": [150,150,150,255],
+  "normal": [100,100,100,255],
+  "thin": [50,50,50,255]
+};
+
 recognition.addEventListener('result', function (event) {
-    console.log(event.results);
+    // console.log(event.results);
     
     let text = event.results[times][0].transcript;
-    if (text == '進') text = "すすむ";
+    if (text == '進') text = "進む";
+    if (text == '西武') text = "セーブ";
 
     elmResult.value = text;
     
@@ -452,7 +415,7 @@ recognition.addEventListener('result', function (event) {
       case 'スタート':
         // erase_mode = false;
         // line_on = true;
-        document.getElementById("pen").click();
+        document.getElementById("pen").onclick();
         // times++;
         break;
       case '消しゴム':
@@ -473,15 +436,15 @@ recognition.addEventListener('result', function (event) {
         line_thickness = 30;
         times++;
         break;
-      case '細い':
-        line_thickness = 5;
-        times++;
-        break;
       case '普通':
         line_thickness = 15;
         times++;
         break;
-      case '赤':
+      case '細い':
+        line_thickness = 5;
+        times++;
+        break;
+        case '赤':
         line_color = [255,0,0,255];
         times++;
         break;
@@ -509,10 +472,10 @@ recognition.addEventListener('result', function (event) {
         line_color = [128,0,128,255];
         times++;
         break;
-      case '白':
-        line_color = [255,255,255,255];
-        times++;
-        break;
+      // case '白':
+      //   line_color = [255,255,255,255];
+      //   times++;
+      //   break;
       case '黒':
         line_color = [0,0,0,255];
         times++;
@@ -548,7 +511,7 @@ recognition.addEventListener('result', function (event) {
         shineButton('back_button');
         times++;
         break;
-      case 'クリア':
+      case '全て消す':
         clear_flag = true;
         shineButton('clear_button');
         times++;
@@ -556,13 +519,19 @@ recognition.addEventListener('result', function (event) {
       default:
         times++;
         break;
-    }
+      case 'アップ':
+        // erase_mode = false;
+        // line_on = true;
+        document.getElementById("upload_button").onclick();
+        // times++;
+        break;
+      }
 }, false);
 
 
 window.addEventListener('DOMContentLoaded', () => {
   elmResult.value = '';
-  recognition.start();
+  // recognition.start();
 });
 
 /*
@@ -601,22 +570,22 @@ document.getElementById("help_button").addEventListener("click", () => {
 
   let helpContents = [
     `<div class="helpContents helpContents_center">
-      <p>カメラの<ruby><rb>前</rb><rt>まえ</rt></ruby>に<ruby><rb>指</rb><rt>ゆび</rt></ruby>を出すことで、カメラが指を<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
-      <p><ruby><rb>両手</rb><rt>りょうて</rt></ruby>を出すと、どちらの指も<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
+      <p>カメラの<ruby><rb>前</rb><rt>まえ</rt></ruby>に<ruby><rb>指</rb><rt>ゆび</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すことで、カメラが<ruby><rb>指</rb><rt>ゆび</rt></ruby>を<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
+      <p><ruby><rb>両手</rb><rt>りょうて</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すと、どちらの<ruby><rb>指</rb><rt>ゆび</rt></ruby>も<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
       <img src="png/select2.png" height="128px" width="128px">
       <img src="png/select.png" height="128px" width="128px">
       </div>`,
     `<div class="helpContents helpContents_left">
-      <p><img src="png/penb.png"><span>をクリックして指を出すと絵が<ruby><rb>描</rb><rt>か</rt></ruby>けます。</span></p>
-      <p><img src="png/eraserb.png"><span>をクリックして指を出すと描いたものを<ruby><rb>消</rb><rt>け</rt></ruby>せます。</span></p>
-      <p><img src="png/color.png"><span>をクリックすると色を<ruby><rb>変</rb><rt>か</rt></ruby>えられます。</span></p>
+      <p><img src="png/penb.png"><span>をクリックして<ruby><rb>指</rb><rt>ゆび</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すと<ruby><rb>絵</rb><rt>え</rt></ruby>が<ruby><rb>描</rb><rt>か</rt></ruby>けます。</span></p>
+      <p><img src="png/eraserb.png"><span>をクリックして<ruby><rb>指</rb><rt>ゆび</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すと<ruby><rb>描</rb><rt>か</rt></ruby>いたものを<ruby><rb>消</rb><rt>け</rt></ruby>せます。</span></p>
+      <p><img src="png/color.png"><span>をクリックすると<ruby><rb>色</rb><rt>いろ</rt></ruby>を<ruby><rb>変</rb><rt>か</rt></ruby>えられます。</span></p>
       </div>`,
     `<div class="helpContents helpContents_left">
-      <p><img src="png/save.png"><span>をクリックすると描いた絵を<ruby><rb>保存</rb><rt>ほぞん</rt></ruby>できます。</span></p>
-      <p><img src="png/upload.png"><span>をクリックすると描いた絵をアップロードできます。</span></p>
+      <p><img src="png/save.png"><span>をクリックすると<ruby><rb>描</rb><rt>か</rt></ruby>いた<ruby><rb>絵</rb><rt>え</rt></ruby>を<ruby><rb>保存</rb><rt>ほぞん</rt></ruby>できます。</span></p>
+      <p><img src="png/upload.png"><span>をクリックすると<ruby><rb>描</rb><rt>か</rt></ruby>いた<ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードできます。</span></p>
       </div>`,
     `<div class="helpContents helpContents_center">
-      <p>声を出すとそれに<ruby><rb>反応</rb><rt>はんのう</rt></ruby>します。まずは「スタート」と言ってみよう！</p>
+      <p><ruby><rb>声</rb><rt>こえ</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すとそれに<ruby><rb>反応</rb><rt>はんのう</rt></ruby>します。まずは「スタート」と<ruby><rb>言</rb><rt>い</rt></ruby>ってみよう！</p>
     </div>`
   ];
 
@@ -631,6 +600,8 @@ document.getElementById("help_button").addEventListener("click", () => {
 
   document.getElementById("windowCloser").addEventListener("click", () => {
     helpWindow.remove();
+    if(is_recognition_stared == false) recognition_start();
+
   });
   document.getElementsByClassName("helpNum")[0].click();
 
@@ -653,3 +624,18 @@ for (let i = 0; i < colorbuttons.length; i++) {
     document.getElementById("current_color").className = `color_${selectedColor}`;
   })
 }
+
+let thicknessbuttons = document.querySelectorAll(".thicknesses");
+for (let i = 0; i < thicknessbuttons.length; i++) {
+  thicknessbuttons[i].addEventListener("click", (e) => {
+    let selectedThickness = Object.keys(thickList)[i];
+    console.log(i);
+    console.log(thickList[selectedThickness]);
+    line_thickness = [30, 15, 5][i];
+    document.getElementById("current_thickness").className = `color_${selectedThickness}`;
+})
+}
+
+document.getElementById("help_button").click()
+
+
