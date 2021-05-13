@@ -11,7 +11,7 @@ const containerElement = document.getElementsByClassName('container')[0];
 
 // 設定パラメータ
 let line_thickness = 10; // 線の太さ
-let line_color = [255, 255, 255, 255]; //RGBA
+let line_color = [0, 0, 0, 255]; //RGBA
 let line_on = false; // ペン/消しゴム の線を描画するかどうか
 let erase_mode = false; // ペンを使うか消しゴムを使うか
 
@@ -468,9 +468,9 @@ document.getElementById("color").onchange = () => {
     case 'blue':
       line_color = [0, 0, 255, 255];
       break;
-    case 'white':
-      line_color = [255, 255, 255, 255];
-      break;
+    // case 'white':
+    //   line_color = [255, 255, 255, 255];
+    //   break;
     case 'black':
       line_color = [0, 0, 0, 255];
       break;
