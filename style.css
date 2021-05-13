@@ -171,6 +171,11 @@ body {
 #buttonBar3 {
   top: 100px;
 }
+
+#buttonBar4 {
+  top: 150px;
+}
+
 /*
 #clear_button{
   position: absolute;
@@ -388,6 +393,14 @@ input[type="text"]{
 }
 
 #current_color:hover + #unused_color{
+  left: 0px;
+}
+#current_thickness{
+  position: relative;
+  z-index: 10;
+}
+
+#current_thickness:hover + #unused_color{
   left: 0px;
 }
 #unused_color:hover{

@@ -9,7 +9,7 @@ const loudnessElement = document.getElementById("loudness")
 
 // 設定パラメータ
 let line_thickness = 15; // 線の太さ
-let line_color = [255,255,255,255]; //RGBA
+let line_color = [0,0,0,255]; //RGBA
 let line_on = false; // ペン/消しゴム の線を描画するかどうか
 let erase_mode = false; // ペンを使うか消しゴムを使うか
 
@@ -388,7 +388,8 @@ recognition.addEventListener('result', function (event) {
     // console.log(event.results);
     
     let text = event.results[times][0].transcript;
-    if (text == '進') text = "すすむ";
+    if (text == '進') text = "進む";
+    if (text == '西武') text = "セーブ";
 
     elmResult.value = text;
     
@@ -403,7 +404,7 @@ recognition.addEventListener('result', function (event) {
       case 'スタート':
         // erase_mode = false;
         // line_on = true;
-        document.getElementById("pen").click();
+        document.getElementById("pen").onclick();
         // times++;
         break;
       case '消しゴム':
@@ -424,15 +425,15 @@ recognition.addEventListener('result', function (event) {
         line_thickness = 30;
         times++;
         break;
-      case '細い':
-        line_thickness = 5;
-        times++;
-        break;
       case '普通':
         line_thickness = 15;
         times++;
         break;
-      case '赤':
+      case '細い':
+        line_thickness = 5;
+        times++;
+        break;
+        case '赤':
         line_color = [255,0,0,255];
         times++;
         break;
@@ -499,7 +500,7 @@ recognition.addEventListener('result', function (event) {
         shineButton('back_button');
         times++;
         break;
-      case 'クリア':
+      case '全て消す':
         clear_flag = true;
         shineButton('clear_button');
         times++;
@@ -507,7 +508,13 @@ recognition.addEventListener('result', function (event) {
       default:
         times++;
         break;
-    }
+      case 'アップ':
+        // erase_mode = false;
+        // line_on = true;
+        document.getElementById("upload_button").onclick();
+        // times++;
+        break;
+      }
 }, false);
 
 
@@ -603,6 +610,15 @@ for (let i = 0; i < colorbuttons.length; i++) {
     document.getElementById("current_color").className = `color_${selectedColor}`;
   })
 }
+
+let thicknessbuttons = document.querySelectorAll(".thicknesses");
+for (let i = 0; i < thicknessbuttons.length; i++) {
+  thicknessbuttons[i].addEventListener("click", (e) => {
+    line_thickness = [30, 15, 5][i];
+    // document.getElementById("current_thickness").style.fontWeight = [900, 400, 100][i];
+  })
+}
+
 
 document.getElementById("help_button").click()
 

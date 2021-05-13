@@ -92,7 +92,7 @@
     <button id="back_button">もどる</button>
     <button id="forward_button">すすむ</button>
     <button id="save_button">セーブ</button>
-    <button id="clear_button">ぜんぶけす</button>
+    <button id="clear_button">すべてけす</button>
     <button id="upload_button">アップ</button>
     <button id="help_button">?</button>
     </div>
@@ -104,7 +104,7 @@
     
     <input type="text" id="recognitionResult">
     <div id="voice_command" class="color_white">
-        <div id="voice_command_title">音声コマンド</div>
+        <div id="voice_command_title">そうさリスト</div>
         <table id="voice_command_all">
             <thead>
                 <tr><th><ruby><rb>音声</rb><rt>おんせい</rt></ruby></th><th></th><th><ruby><rb>動作</rb><rt>どうさ</rt></ruby></th></tr>
@@ -113,14 +113,15 @@
                 <tr><td>スタート</td><td></td><td>お<ruby><rb>絵</rb><rt>え</rt></ruby><ruby><rb>描</rb><rt>か</rt></ruby>きを<ruby><rb>始</rb><rt>はじ</rt></ruby>める</td></tr>
                 <tr><td>ストップ</td><td></td><td>お<ruby><rb>絵</rb><rt>え</rt></ruby><ruby><rb>描</rb><rt>か</rt></ruby>きを<ruby><rb>中断</rb><rt>ちゅうだん</rt></ruby>する</td></tr>
                 <tr><td>けしゴム</td><td></td><td>けしゴムモードにする</td></tr>
-                <tr><td><ruby><rb>太</rb><rt>ふと</rt></ruby>い</td><td></td><td><ruby><rb>線</rb><rt>せん</rt></ruby>を<ruby><rb>太</rb><rt>ふと</rt></ruby>くする</td></tr>
-                <tr><td><ruby><rb>細</rb><rt>ほそ</rt></ruby>い</td><td></td><td><ruby><rb>線</rb><rt>せん</rt></ruby>を<ruby><rb>細</rb><rt>ほそ</rt></ruby>くする</td></tr>
-                <tr><td><ruby><rb>普通</rb><rt>ふつう</rt></ruby></td><td></td><td><ruby><rb>線</rb><rt>せん</rt></ruby>を<ruby><rb>普通</rb><rt>ふつう</rt></ruby>の<ruby><rb>太</rb><rt>ふと</rt></ruby>さにする</td></tr>
-                <tr><td>セーブ</td><td></td><td><ruby><rb>描</rb><rt>か</rt></ruby>いた<ruby><rb>絵</rb><rt>え</rt></ruby>を<ruby><rb>保存</rb><rt>ほぞん</rt></ruby>する</td></tr>
-                <tr><td>すべてけす</td><td></td><td><ruby><rb>描</rb><rt>か</rt></ruby>いた<ruby><rb>絵</rb><rt>え</rt></ruby>をすべてけす</td></tr>
                 <tr><td>もどる</td><td></td><td><ruby><rb>直前</rb><rt>ちょくぜん</rt></ruby>のお<ruby><rb>絵</rb><rt>え</rt></ruby><ruby><rb>描</rb><rt>か</rt></ruby>きを<ruby><rb>取</rb><rt>と</rt></ruby>り<ruby><rb>消</rb><rt>け</rt></ruby>す</td></tr>
                 <tr><td>すすむ</td><td></td><td><ruby><rb>直前</rb><rt>ちょくぜん</rt></ruby>に<ruby><rb>取</rb><rt>と</rt></ruby>り<ruby><rb>消</rb><rt>け</rt></ruby>したお<ruby><rb>絵</rb><rt>え</rt></ruby><ruby><rb>描</rb><rt>か</rt></ruby>きを<ruby><rb>元</rb><rt>もと</rt></ruby>にもどす</td></tr>
-                <tr><td>（<ruby><rb>色</rb><rt>いろ</rt></ruby>）</td><td></td><td>(<ruby><rb>赤</rb><rt>あか</rt></ruby>/オレンジ/<ruby><rb>黄色</rb><rt>きいろ</rt></ruby>/<ruby><rb>緑</rb><rt>みどり</rt></ruby>/<ruby><rb>水色</rb><rt>みずいろ</rt></ruby>/<ruby><rb>青</rb><rt>あお</rt></ruby>/<ruby><rb>紫</rb><rt>むらさき</rt></ruby>/<ruby><rb>黒</rb><rt>くろ</rt></ruby>/ピンク<br>  /うすだいだい/<ruby><rb>茶色</rb><rt>ちゃいろ</rt></ruby>/<ruby><rb>灰色</rb><rt>はいいろ</rt></ruby>) に<ruby><rb>変</rb><rt>か</rt></ruby>える</td></tr>
+                <tr><td>セーブ</td><td></td><td><ruby><rb>描</rb><rt>か</rt></ruby>いた<ruby><rb>絵</rb><rt>え</rt></ruby>を<ruby><rb>保存</rb><rt>ほぞん</rt></ruby>する</td></tr>
+                <tr><td>すべてけす</td><td></td><td><ruby><rb>描</rb><rt>か</rt></ruby>いた<ruby><rb>絵</rb><rt>え</rt></ruby>をすべてけす</td></tr>
+                <tr><td>アップ</td><td></td><td><ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードする</td></tr>
+                <tr><td>（<ruby><rb>色</rb><rt>いろ</rt></ruby>）</td><td></td><td>(<ruby><rb>赤</rb><rt>あか</rt></ruby>/オレンジ/<ruby><rb>黄色</rb><rt>きいろ</rt></ruby>/<ruby><rb>緑</rb><rt>みどり</rt></ruby>/<ruby><rb>水色</rb><rt>みずいろ</rt></ruby>/<ruby><rb>青</rb><rt>あお</rt></ruby>/<ruby><rb>紫</rb><rt>むらさき</rt></ruby>/<ruby><rb>黒</rb><rt>くろ</rt></ruby><br>  /ピンク/うすだいだい/<ruby><rb>茶色</rb><rt>ちゃいろ</rt></ruby>/<ruby><rb>灰色</rb><rt>はいいろ</rt></ruby>) に<ruby><rb>変</rb><rt>か</rt></ruby>える</td></tr>
+                <tr><td><ruby><rb>太</rb><rt>ふと</rt></ruby>い</td><td></td><td><ruby><rb>線</rb><rt>せん</rt></ruby>を<ruby><rb>太</rb><rt>ふと</rt></ruby>くする</td></tr>
+                <tr><td>ふつう</td><td></td><td><ruby><rb>線</rb><rt>せん</rt></ruby>をふつうの<ruby><rb>太</rb><rt>ふと</rt></ruby>さにする</td></tr>
+                <tr><td><ruby><rb>細</rb><rt>ほそ</rt></ruby>い</td><td></td><td><ruby><rb>線</rb><rt>せん</rt></ruby>を<ruby><rb>細</rb><rt>ほそ</rt></ruby>くする</td></tr>
             </tbody>
         </table>
     </div>
@@ -136,7 +137,7 @@
     <!-- <input type="button" id="voice_command" class="color_white" value="音声コマンド"> -->
     </div>
     <div id="buttonBar3" class="buttonBar">
-        <input type="button" id="current_color" class="color_white" value="色">
+        <input type="button" id="current_color" class="color_white" value="いろ">
         <span id="unused_color">
             <input type="button" class="colors color_red" value="赤">
             <input type="button" class="colors color_orange" value="オレンジ">
@@ -151,6 +152,14 @@
             <input type="button" class="colors color_paleorange" value="うすだいだい">
             <input type="button" class="colors color_brown" value="茶色">
             <input type="button" class="colors color_gray" value="灰色">
+        </span>
+    </div>
+    <div id="buttonBar4" class="buttonBar">
+        <input type="button" id="current_thickness" class="color_white" value="ふとさ">
+        <span id="unused_color">
+            <input type="button" class="thicknesses unused_color" value="太い">
+            <input type="button" class="thicknesses unused_color" value="ふつう">
+            <input type="button" class="thicknesses unused_color" value="細い">
         </span>
     </div>
   <!-- <button id="susresBtn">toggle audio context</button>  -->
