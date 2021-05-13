@@ -503,10 +503,10 @@ recognition.addEventListener('result', function (event) {
         line_color = [128,0,128,255];
         times++;
         break;
-      case '白':
-        line_color = [255,255,255,255];
-        times++;
-        break;
+      // case '白':
+      //   line_color = [255,255,255,255];
+      //   times++;
+      //   break;
       case '黒':
         line_color = [0,0,0,255];
         times++;
