@@ -272,9 +272,9 @@ document.getElementById("upload_button").onclick = () => {
   fullScreen.style.cssText = "position: fixed; height: 100%; width: 100%;";
   fullScreen.innerHTML = `
     <div id="uploadArea">
-    <h3>作った<ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードしよう！</h3>  
-    <div><ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードするとホームページ内を絵が泳ぎます。</div>
-    <div>ほかの人にも自分の作品をじまんしよう！</div>
+    <h3><ruby><rb>作</rb><rt>つく</rt></ruby>った<ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードしよう！</h3>  
+    <div><ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードするとホームページ<ruby><rb>内</rb><rt>ない</rt></ruby>を<ruby><rb>絵</rb><rt>え</rt></ruby>が<ruby><rb>泳</rb><rt>およ</rt></ruby>ぎます。</div>
+    <div>ほかの人にも<ruby><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby><rb>作品</rb><rt>さくひん</rt></ruby>をじまんしよう！</div>
       <div><img src=${sendData} height="360px" width="640px" id="imgArea"></div>
       <div>
         <input type="text" placeholder="ニックネーム" id="uploadName" size="20">
