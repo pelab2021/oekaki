@@ -485,6 +485,18 @@ input[type="text"]{
   background-color: gray;
   color: white;
 }
+.color_bold{
+  background-color: #111111;
+  color: white;
+}
+.color_normal{
+  background-color: #444444;
+  color: white;
+}
+.color_thin{
+  background-color: #666666;
+  color: white;
+}
 
 
 th{

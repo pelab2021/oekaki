@@ -384,6 +384,12 @@ const colorList = {
   "gray": [117,117,117,255]
 };
 
+const thickList = {
+  "bold": [150,150,150,255],
+  "normal": [100,100,100,255],
+  "thin": [50,50,50,255]
+};
+
 recognition.addEventListener('result', function (event) {
     // console.log(event.results);
     
@@ -614,11 +620,13 @@ for (let i = 0; i < colorbuttons.length; i++) {
 let thicknessbuttons = document.querySelectorAll(".thicknesses");
 for (let i = 0; i < thicknessbuttons.length; i++) {
   thicknessbuttons[i].addEventListener("click", (e) => {
+    let selectedThickness = Object.keys(thickList)[i];
+    console.log(i);
+    console.log(thickList[selectedThickness]);
     line_thickness = [30, 15, 5][i];
-    // document.getElementById("current_thickness").style.fontWeight = [900, 400, 100][i];
-  })
+    document.getElementById("current_thickness").className = `color_${selectedThickness}`;
+})
 }
-
 
 document.getElementById("help_button").click()
 
