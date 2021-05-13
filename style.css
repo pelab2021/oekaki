@@ -66,6 +66,7 @@ body {
   max-height: 100%;
   left: 0;
   top: 0;
+  z-index: -2147483647;
 }
 
 .logo {
@@ -248,13 +249,14 @@ button.valid:hover {
   background-color: white;
 }
 
-#fullOverlay{
+/* #fullOverlay{
   position: absolute;
   left: 0; top: 0;
   width: 100%; height: 100%;
   background: rgba(100, 100, 100, .8);
   z-index: 2147483647;
-}
+} */
+
 .start_message{
   font-size: 60px;
   position: absolute;
