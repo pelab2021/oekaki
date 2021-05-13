@@ -272,8 +272,8 @@ document.getElementById("upload_button").onclick = () => {
   fullScreen.style.cssText = "position: fixed; height: 100%; width: 100%;";
   fullScreen.innerHTML = `
     <div id="uploadArea">
-    <h3>作った絵をアップロードしよう！</h3>  
-    <div>絵をアップロードするとホームページ内を絵が泳ぎます。</div>
+    <h3>作った<ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードしよう！</h3>  
+    <div><ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードするとホームページ内を絵が泳ぎます。</div>
     <div>ほかの人にも自分の作品をじまんしよう！</div>
       <div><img src=${sendData} height="360px" width="640px" id="imgArea"></div>
       <div>
@@ -592,22 +592,22 @@ document.getElementById("help_button").addEventListener("click", () => {
 
   let helpContents = [
     `<div class="helpContents helpContents_center">
-      <p>カメラの<ruby><rb>前</rb><rt>まえ</rt></ruby>に<ruby><rb>指</rb><rt>ゆび</rt></ruby>を出すことで、カメラが指を<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
-      <p><ruby><rb>両手</rb><rt>りょうて</rt></ruby>を出すと、どちらの指も<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
+      <p>カメラの<ruby><rb>前</rb><rt>まえ</rt></ruby>に<ruby><rb>指</rb><rt>ゆび</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すことで、カメラが<ruby><rb>指</rb><rt>ゆび</rt></ruby>を<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
+      <p><ruby><rb>両手</rb><rt>りょうて</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すと、どちらの<ruby><rb>指</rb><rt>ゆび</rt></ruby>も<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
       <img src="png/select2.png" height="128px" width="128px">
       <img src="png/select.png" height="128px" width="128px">
       </div>`,
     `<div class="helpContents helpContents_left">
-      <p><img src="png/penb.png"><span>をクリックして指を出すと絵が<ruby><rb>描</rb><rt>か</rt></ruby>けます。</span></p>
-      <p><img src="png/eraserb.png"><span>をクリックして指を出すと描いたものを<ruby><rb>消</rb><rt>け</rt></ruby>せます。</span></p>
-      <p><img src="png/color.png"><span>をクリックすると色を<ruby><rb>変</rb><rt>か</rt></ruby>えられます。</span></p>
+      <p><img src="png/penb.png"><span>をクリックして<ruby><rb>指</rb><rt>ゆび</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すと<ruby><rb>絵</rb><rt>え</rt></ruby>が<ruby><rb>描</rb><rt>か</rt></ruby>けます。</span></p>
+      <p><img src="png/eraserb.png"><span>をクリックして<ruby><rb>指</rb><rt>ゆび</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すと<ruby><rb>描</rb><rt>か</rt></ruby>いたものを<ruby><rb>消</rb><rt>け</rt></ruby>せます。</span></p>
+      <p><img src="png/color.png"><span>をクリックすると<ruby><rb>色</rb><rt>いろ</rt></ruby>を<ruby><rb>変</rb><rt>か</rt></ruby>えられます。</span></p>
       </div>`,
     `<div class="helpContents helpContents_left">
-      <p><img src="png/save.png"><span>をクリックすると描いた絵を<ruby><rb>保存</rb><rt>ほぞん</rt></ruby>できます。</span></p>
-      <p><img src="png/upload.png"><span>をクリックすると描いた絵をアップロードできます。</span></p>
+      <p><img src="png/save.png"><span>をクリックすると<ruby><rb>描</rb><rt>か</rt></ruby>いた<ruby><rb>絵</rb><rt>え</rt></ruby>を<ruby><rb>保存</rb><rt>ほぞん</rt></ruby>できます。</span></p>
+      <p><img src="png/upload.png"><span>をクリックすると<ruby><rb>描</rb><rt>か</rt></ruby>いた<ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードできます。</span></p>
       </div>`,
     `<div class="helpContents helpContents_center">
-      <p>声を出すとそれに<ruby><rb>反応</rb><rt>はんのう</rt></ruby>します。まずは「スタート」と言ってみよう！</p>
+      <p><ruby><rb>声</rb><rt>こえ</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すとそれに<ruby><rb>反応</rb><rt>はんのう</rt></ruby>します。まずは「スタート」と<ruby><rb>言</rb><rt>い</rt></ruby>ってみよう！</p>
     </div>`
   ];
 
