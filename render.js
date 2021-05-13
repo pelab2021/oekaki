@@ -278,8 +278,8 @@ const onmessage_main = (render_data) => {
   //線が書かれている途中で、 (ペン/消しゴムが置かれた/切り替えられた || 各種描画操作コマンドが実行された||色が変更された) -> ストロークの最後
   let is_stroke_end = !is_empty && (line_off_notify || erase_mode_toggled || (render_data.back_button_cnt > 0) || (render_data.forward_button_cnt > 0) || (render_data.clear_flag) || is_color_changed);
 
-  //draw命令が来ている || ストロークの最後
-  if (render_data.draw || is_stroke_end) {
+  //draw命令が来ている || ストロークの最後 || save_requestが来ている
+  if (render_data.draw || is_stroke_end || render_data.save_img_request) {
 
     if (now_img == null) {
       now_img = get_new_img()
