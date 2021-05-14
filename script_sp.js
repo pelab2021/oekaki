@@ -507,11 +507,11 @@ document.getElementById("color").onchange = () => {
 }
 
 
-document.getElementById("fullOverlay").onclick = async () => {
-  document.getElementById("fullOverlay").remove()
-  document.getElementById("help_button").click();
-  // console.log("audio_init() is called")
-}
+// document.getElementById("fullOverlay").onclick = async () => {
+//   document.getElementById("fullOverlay").remove()
+//   document.getElementById("help_button").click();
+//   // console.log("audio_init() is called")
+// }
 
 
 // ヘルプ画面の表示
@@ -572,7 +572,7 @@ document.getElementById("help_button").addEventListener("click", () => {
   });
 });
 
-// document.getElementById("help_button").click()
+document.getElementById("help_button").click()
 
 // let susresBtn = document.getElementById("susresBtn")
 
