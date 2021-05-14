@@ -64,7 +64,7 @@ body {
   z-index: 2;
 }
 .output_canvas_for_save {
-  position: absolute;
+  position: fixed;
   /* height: 720px;
   width: 1280px; */
   visibility: hidden;
