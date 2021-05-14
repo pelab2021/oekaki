@@ -430,10 +430,10 @@ document.getElementById("upload_button").onclick = () => {
     fullScreen.style.cssText = "position: fixed; height: 100%; width: 100%;";
     fullScreen.innerHTML = `
       <div id="uploadArea">
-      <h3><ruby><rb>作</rb><rt>つく</rt></ruby>った<ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードしよう！</h3>  
-      <div><ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードするとホームページ<ruby><rb>内</rb><rt>ない</rt></ruby>を<ruby><rb></div>
-      <div><rb>絵</rb><rt>え</rt></ruby>が<ruby><rb>泳</rb><rt>およ</rt></ruby>ぎます。<div>
-      <div>ほかの人にも<ruby><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby><rb>作品</rb><rt>さくひん</rt></ruby>をじまんしよう！</div>
+      <h3>作った絵をアップロードしよう！</h3>  
+      <div>絵をアップロードするとホームページ内を</div>
+      <div>絵がうごきます。<div>
+      <div>ほかの人にも自分の作品をじまんしよう！</div>
         <div>
           <input type="text" placeholder="ニックネーム" id="uploadName" size="20">
           <button id="uploadPost">アップロード</button>
@@ -535,18 +535,15 @@ document.getElementById("help_button").addEventListener("click", () => {
 
   let helpContents = [
     `<div class="helpContents helpContents_center">
-      <p>カメラの<ruby><rb>前</rb><rt>まえ</rt></ruby>に<ruby><rb>指</rb><rt>ゆび</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すことで<br>カメラが<ruby><rb>指</rb><rt>ゆび</rt></ruby>を<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
-      <p><ruby><rb>両手</rb><rt>りょうて</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すと<br>どちらの<ruby><rb>指</rb><rt>ゆび</rt></ruby>も<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
-      <img src="png/select2.png" height="64px" width="64px">
-      <img src="png/select.png" height="64px" width="64px">
+      <p>カメラに手をだすことで<br>カメラがゆびを見つけます。</p>
+      <p>両手をだすと<br>どちらのゆびも見つけてくれます。</p>
       </div>`,
     `<div class="helpContents helpContents_center">
-      <p>「ペン」をクリックすると<br><ruby><rb>絵</rb><rt>え</rt></ruby>がかけます。</span></p>
-      <p>「けしゴム」をクリックすると<br>かいたものを<ruby><rb>けせます。</span></p>
-      <p>「いろをえらぶ」をクリックすると<br><ruby><rb>色</rb><rt>いろ</rt></ruby>を<ruby><rb>変</rb><rt>か</rt></ruby>えることができます。</span></p>
+      <p>「ペン」をクリックすると<br>絵がかけます。</span></p>
+      <p>「けしゴム」をクリックすると<br>かいたものをけせます。</span></p>
       </div>`,
     `<div class="helpContents helpContents_center">
-      <p>「アップ」をクリックすると<br><ruby><rb>絵</rb><rt>え</rt></ruby>をウェブサイト上に<br>アップロードできます。</span></p>
+      <p>「アップ」をクリックすると<br>絵をウェブサイト上に<br>アップロードできます。</span></p>
       <p>レッツチャレンジ！</span></p>
       </div>`,
   ];

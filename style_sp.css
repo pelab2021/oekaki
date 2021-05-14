@@ -277,12 +277,12 @@ button.valid:hover {
 }
 #uploadArea{
   padding: 5px;
-  top: 0;
+  top: 0px;
   left: 0;
   bottom: 0;
   right: 0;
   margin: auto;
-  height: 550px;
+  height: 200px;
   width: 660px;
   position: absolute;
   background-color: #bbbbbb;
