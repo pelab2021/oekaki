@@ -109,7 +109,7 @@ const init = (success) => {
     //     new cv.Scalar(0, 0, 0, 255),
     //   ];  // RGBA
     opencv_loaded = true
-    // console.log("Opencv.js loaded")
+    console.log("Opencv.js loaded")
   } else {
     console.err("Opencv.js load failed")
 
@@ -161,7 +161,7 @@ const draw_calc = (line) => {
 }
 const imageDataFromMat = (mat) => {
   // convert the mat type to cv.CV_8U
-  if(!mat){
+  if (!mat) {
     return null
   }
   const img = new cv.Mat()
@@ -218,8 +218,7 @@ let pre_render_data = null;
 
 const onmessage_main = (render_data) => {
   if (!opencv_loaded) return
-  if(pre_render_data ==null) pre_render_data = render_data
-
+  if (pre_render_data == null) pre_render_data = render_data
 
   canvas_height = render_data.height
   canvas_width = render_data.width
@@ -233,7 +232,9 @@ const onmessage_main = (render_data) => {
       const isRightHand = render_data.isRightHand[index]
       const landmarks = render_data.landmarks[index];
 
-      const p = new cv.Point(landmarks[8].x * canvas_width, landmarks[8].y * canvas_height);
+      const [x, y, z] = landmarks.landmarks[8];
+      // console.log(x * canvas_width);
+      const p = new cv.Point(x, y);
       const hand_i = isRightHand ? 0 : 1;
 
       let now_line = lines[hand_i][lines[hand_i].length - 1]
@@ -278,8 +279,8 @@ const onmessage_main = (render_data) => {
   //線が書かれている途中で、 (ペン/消しゴムが置かれた/切り替えられた || 各種描画操作コマンドが実行された||色が変更された) -> ストロークの最後
   let is_stroke_end = !is_empty && (line_off_notify || erase_mode_toggled || (render_data.back_button_cnt > 0) || (render_data.forward_button_cnt > 0) || (render_data.clear_flag) || is_color_changed);
 
-  //draw命令が来ている || ストロークの最後 || save_requestが来ている
-  if (render_data.draw || is_stroke_end || render_data.save_img_request) {
+  //draw命令が来ている || ストロークの最後
+  if (render_data.draw || is_stroke_end) {
 
     if (now_img == null) {
       now_img = get_new_img()
@@ -322,7 +323,7 @@ const onmessage_main = (render_data) => {
     }
     draw_img(add_img, result_img);
     let save_img = null;
-    if (render_data.save_img_request){
+    if (render_data.save_img_request) {
       save_img = get_new_img()
       cv.flip(result_img, save_img, 1);
     }

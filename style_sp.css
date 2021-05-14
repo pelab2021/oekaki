@@ -1,0 +1,308 @@
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.abs {
+  position: absolute;
+}
+
+a {
+  color: white;
+  text-decoration: none;
+}
+a:hover {
+  color: lightblue;
+}
+
+body {
+  bottom: 0;
+  font-family: "Titillium Web", sans-serif;
+  color: white;
+  left: 0;
+  margin: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform-origin: 0px 0px;
+  overflow: hidden;
+  height: 100%;
+  width:100%;
+}
+
+.container {
+  position: fixed;
+  background-color: #596e73;
+  top : 0;
+  left : 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+}
+.input_video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+.input_video.selfie {
+  transform: scale(-1, 1);
+}
+.output_canvas {
+  position: fixed;
+  /* height: 720px;
+  width: 1280px; */
+  left: 0;
+  top: 0;
+  z-index: 2;
+}
+.output_canvas_for_save {
+  position: absolute;
+  /* height: 720px;
+  width: 1280px; */
+  visibility: hidden;
+  left: 0;
+  top: 0;
+}
+
+/*
+#back_button{
+  position: absolute;
+  left: 0px;
+  top: 0;
+  white-space:nowrap;
+}
+*/
+
+/*
+#forward_button{
+  position: absolute;
+  left: 65px;
+  top: 0;
+  white-space:nowrap;
+}
+
+#pen_mode{
+  position: absolute;
+  left: 130px;
+  top: 0;
+}
+*/
+
+.buttonBar {
+  width: 500px;
+  position: absolute;
+  left: 0;
+  
+  color:black;
+}
+#buttonBar1 {
+  top: 0;
+  left: 0px
+}
+#buttonBar2 {
+  top: 50px;
+  left: 0px;
+}
+/*
+#clear_button{
+  position: absolute;
+  left: 250px;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-evenly;
+}
+*/
+button {
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  outline: 0;
+  padding: 8px 20px;
+  color: #fff;
+  background-color: #ff00ff;
+  box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%);
+  font-size: 0.875rem;
+  min-width: 40px;
+  box-sizing: border-box;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 500;
+  line-height: 1.75;
+  border-radius: 4px;
+  letter-spacing: 0.02857em;
+  text-align: center;
+  text-transform: uppercase;
+  transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,border 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  /* z-index: -1; */
+}
+button:hover {
+  background-color: #ffc0cb;
+  box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%), 0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
+}
+button:active {
+  box-shadow: 0px 5px 5px -3px rgb(0 0 0 / 20%), 0px 8px 10px 1px rgb(0 0 0 / 14%), 0px 3px 14px 2px rgb(0 0 0 / 12%);
+}
+
+button.invalid {
+  background-color: #bbbbbb;
+}
+button.invalid:hover {
+  background-color: #ffc0cb;
+  box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%), 0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
+}
+button.valid:hover {
+  background-color: #ff00ff;
+}
+
+#fps_display{
+  position: absolute;
+  left: 400px;
+  top: 0;
+  color:black;
+  background-color: white;
+  white-space:nowrap;
+}
+/* #susresBtn{
+  position: absolute;
+  left: 350px;
+  top: 0;
+  color:black;
+} */
+#loudness{
+  position: absolute;
+  left: 500px;
+  top: 0;
+  color:black;
+  background-color: white;
+  white-space:nowrap;
+}
+#start_button{
+  position: absolute;
+  color:black;
+  background-color: white;
+}
+
+.start_message{
+  text-align: center;
+  font-size: 50px;
+  position: absolute;
+  top: 50%;  left: 50%;
+  transform: translateY(-50%) translateX(-50%);
+  -webkit-transform: translateY(-50%) translateX(-50%);
+  user-select: none; /* CSS3 */
+  -moz-user-select: none; /* Firefox */
+  -webkit-user-select: none; /* Safari、Chromeなど */
+  max-width:100%;
+}
+
+.start_message p{
+  white-space: nowrap;
+  /* font-size:  */
+}
+
+#fullOverlay{
+  position: absolute;
+  width: 100%; height: 100%;
+  background: rgba(100, 100, 100, .8);
+  z-index: 2147483647;
+}
+
+.helpContents{
+  position: absolute;
+  top: 35%;
+  width: 100%;
+  z-index: -1;
+}
+.helpContents img{
+  vertical-align: middle;
+  margin-right: 5px;
+}
+.helpContents p{
+  font-size: 18px;
+}
+.helpContents span{
+  font-size: 18px;
+  vertical-align: middle;
+}
+.helpContents_center{
+  text-align: center;
+}
+.helpContents_left{
+  left: 100%;
+  text-align: left;
+}
+.helpNum{
+  border-radius: 5px;
+  background-color: #bebebe;
+  cursor: pointer;
+}
+#selectedHelp{
+  background-color: #ff00ff;
+}
+
+.loading {
+  display: flex;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  align-items: center;
+  backface-visibility: hidden;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 1s;
+}
+.loading .message {
+  font-size: x-large;
+}
+.loading .spinner {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  animation: spin 1s linear infinite;
+  border: 32px solid #bebebe;
+  border-top: 32px solid #3498db;
+  border-radius: 50%;
+}
+#uploadArea{
+  padding: 5px;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+  height: 550px;
+  width: 660px;
+  position: absolute;
+  background-color: #bbbbbb;
+}
+#imgArea{
+  display: block;
+  border: solid 1px black;
+  margin: 5px auto;
+}
+/*
+#recognitionStart{
+  position: absolute;
+  left: 0px;
+  top: 30px;
+  color:black;
+}
+#recognitionEnd{
+  position: absolute;
+  left: 70px;
+  top: 30px;
+  color:black;
+}
+#recognitionResult{
+  position: absolute;
+  left: 150px;
+  top: 30px;
+  color:black;
+}
+*/

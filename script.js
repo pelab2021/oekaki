@@ -39,7 +39,6 @@ class SaveImgManager{
   }
   do_callback(save_img){
     this.canvasElementForSave.getContext('2d').putImageData(save_img, 0, 0)
-    console.log(this.callbacks)
     while(this.callbacks.length > 0){
       let f = this.callbacks.pop()
       f(this.canvasElementForSave);
@@ -367,6 +366,10 @@ var recognition = new webkitSpeechRecognition();
 var elmStart = document.getElementById('recognitionStart');
 var elmEnd = document.getElementById('recognitionEnd');
 var elmResult = document.getElementById('recognitionResult');
+recognition.onerror = function(event) {
+  console.log('Speech recognition error detected: ' + event.error);
+}
+
 
 recognition.lang = 'ja';
 recognition.continuous = true;
@@ -381,7 +384,7 @@ const colorList = {
   "lightblue": [0,255,255,255],
   "blue": [0,0,255,255],
   "purple": [128,0,128,255],
-  "white": [255,255,255,255],
+  // "white": [255,255,255,255],
   "black": [0,0,0,255],
   "pink": [255,20,147,255],
   "paleorange": [254,220,189,255],
@@ -400,7 +403,6 @@ const thickList = {
 };
 
 recognition.addEventListener('result', function (event) {
-    // console.log(event.results);
     
     let text = event.results[times][0].transcript;
     if (text == '進') text = "進む";
