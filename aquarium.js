@@ -1,5 +1,5 @@
-const BASE_URL = "http://54.95.100.251:3000"
-const DEBUG_MODE = true 
+const BASE_URL = "https://pelab-oekaki.net:3000"
+const DEBUG_MODE = false
 
 /**
  * https://aralroca.com/blog/opencv-in-the-web

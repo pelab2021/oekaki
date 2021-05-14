@@ -243,7 +243,7 @@ document.getElementById("upload_button").onclick = () => {
     };
     document.getElementById("uploadPost").addEventListener("click", () => {
       const nickname = document.getElementById("uploadName").value;
-      const url = "http://54.95.100.251:3000/upload";
+      const url = "https://pelab-oekaki.net:3000/upload";
       const param = {
         method: "POST",
         mode: "cors",
