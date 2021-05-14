@@ -431,8 +431,7 @@ document.getElementById("upload_button").onclick = () => {
     fullScreen.innerHTML = `
       <div id="uploadArea">
       <h3>作った絵をアップロードしよう！</h3>  
-      <div>絵をアップロードするとホームページ内を</div>
-      <div>絵がうごきます。<div>
+      <div>絵をアップロードするとホームページ内を絵がうごきます。<div>
       <div>ほかの人にも自分の作品をじまんしよう！</div>
         <div>
           <input type="text" placeholder="ニックネーム" id="uploadName" size="20">
@@ -523,7 +522,7 @@ document.getElementById("help_button").addEventListener("click", () => {
 
   helpWindow.innerHTML = `
     <h3 style="position: absolute; top: 0%; left: 80%;"><a id="windowCloser" style="text-decoration: underline; cursor: pointer;">×とじる</a></h2>
-    <h3 style="position: relative; top: 10%; text-align: center; white-space: nowrap;">おえかきひろばへようこそ！</h3>
+    <h2 style="position: relative; top: 10%; text-align: center; white-space: nowrap;">おえかきひろばへようこそ！</h2>
     <div style="position: relative; top: 10%; text-align: center;">
       <a class="helpNum">　1　</a>
       <a class="helpNum">　2　</a>

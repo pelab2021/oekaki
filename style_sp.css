@@ -276,14 +276,14 @@ button.valid:hover {
   border-radius: 50%;
 }
 #uploadArea{
-  padding: 5px;
+  padding-left: 20px;
   top: 0px;
   left: 0;
   bottom: 0;
   right: 0;
   margin: auto;
   height: 200px;
-  width: 660px;
+  width: 500px;
   position: absolute;
   background-color: #bbbbbb;
 }
