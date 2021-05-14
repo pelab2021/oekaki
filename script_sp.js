@@ -1,4 +1,31 @@
 // import { freelizer } from 'https://cdn.jsdelivr.net/npm/freelizer@1.0.0/index.min.js'
+window.addEventListener("load", () => {
+  if(window.orientation === 0 || (screen && screen.orientation && screen.orientation.angle === 0)){
+    const letHorizontal = document.createElement("div");
+    letHorizontal.id = "letHorizontal";
+    letHorizontal.style = `position: absolute; width: 100%; height: 100%; background-color: gray;
+      color: white; z-index: 2147483647; text-align: center; font-size: 32px`;
+    letHorizontal.innerText = "画面を横にしてお楽しみください";
+    document.body.appendChild(letHorizontal);
+  }
+});
+
+window.addEventListener("orientationchange", () => {
+  if(window.orientation === 0 || (screen && screen.orientation && screen.orientation.angle === 0)){
+    if(!document.getElementById("letHorizontal")){
+      const letHorizontal = document.createElement("div");
+      letHorizontal.id = "letHorizontal";
+      letHorizontal.style = `position: absolute; width: 100%; height: 100%; background-color: gray;
+        color: white; z-index: 2147483647; text-align: center; font-size: 32px`;
+      letHorizontal.innerText = "画面を横にしてお楽しみください";
+      document.body.appendChild(letHorizontal);
+    }
+  }
+  else{
+    if(document.getElementById("letHorizontal")) document.getElementById("letHorizontal").remove();
+  }
+})
+
 
 const MAX_NUM_HANDS = 2;
 const MIC_THRESHOLD = 0.01
@@ -421,7 +448,7 @@ document.getElementById("upload_button").onclick = () => {
     document.getElementById("uploadPost").addEventListener("click", () => {
       const nickname = document.getElementById("uploadName").value;
 
-      const url = "http://54.95.100.251:3000/upload";
+      const url = "https://pelab-oekaki.net:3000/upload";
       const param = {
         method: "POST",
         mode: "cors",

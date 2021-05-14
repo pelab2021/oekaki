@@ -114,6 +114,7 @@ if (window.Worker) {
 // })
 // fpsch.start();
 
+
 let loop_cnt = 0;
 let render_loop_cnt = 0;
 let onresults_first = true
@@ -218,27 +219,31 @@ document.getElementById("upload_button").onclick = () => {
     const fullScreen = document.createElement("div");
     fullScreen.id = "uploadFullscreen";
     fullScreen.style.cssText = "position: fixed; height: 100%; width: 100%;";
+  
     fullScreen.innerHTML = `
-      <div id="uploadArea">
+    <div id="uploadArea">
       <h3><ruby><rb>作</rb><rt>つく</rt></ruby>った<ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードしよう！</h3>  
       <div><ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードするとホームページ<ruby><rb>内</rb><rt>ない</rt></ruby>を<ruby><rb>絵</rb><rt>え</rt></ruby>が<ruby><rb>泳</rb><rt>およ</rt></ruby>ぎます。</div>
       <div>ほかの人にも<ruby><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby><rb>作品</rb><rt>さくひん</rt></ruby>をじまんしよう！</div>
-        <div><img src=${sendData} height="360px" width="640px" id="imgArea"></div>
-        <div>
-          <input type="text" placeholder="ニックネーム" id="uploadName" size="20">
-          <button id="uploadPost">アップロード</button>
-          <button id="uploadCancel">キャンセル</button>
-        </div>
+      <div><img src=${sendData} height="360px" width="640px" id="imgArea"></div>
+      <div>
+        <input type="text" placeholder="ニックネーム" id="uploadName" size="20">
+        <button id="uploadPost">アップロード</button>
+        <button id="uploadCancel">キャンセル</button>
       </div>
-    `;
+    </div>
+  `;
     document.body.appendChild(fullScreen);
+  
+    let isFullScreen = !Boolean(document.getElementById("wholeWrapper").style.transform);
+    if(!isFullScreen) document.getElementById("uploadArea").style.cssText += "transform: scale(0.65);";
+  
     document.getElementById("uploadCancel").onclick = () => {
       fullScreen.remove();
     };
     document.getElementById("uploadPost").addEventListener("click", () => {
       const nickname = document.getElementById("uploadName").value;
-
-      const url = "http://54.95.100.251:3000/upload";
+      const url = "https://pelab-oekaki.net:3000/upload";
       const param = {
         method: "POST",
         mode: "cors",
@@ -264,7 +269,7 @@ document.getElementById("upload_button").onclick = () => {
       });
     });
   }
-  save_img_manager.request(upload_img)
+  save_img_manager.request(upload_img);
 }
 
 document.getElementById("eraser").onclick = () => {
@@ -386,11 +391,15 @@ const colorList = {
   "brown": [103,67,45,255],
   "gray": [117,117,117,255]
 };
-
+/*
 const thickList = {
   "bold": [150,150,150,255],
   "normal": [100,100,100,255],
   "thin": [50,50,50,255]
+};
+*/
+const thickList = {
+  "thick": 30, "medium": 15, "thin": 5
 };
 
 recognition.addEventListener('result', function (event) {
@@ -546,13 +555,15 @@ elmEnd.addEventListener('click', function () {
 document.getElementById("help_button").addEventListener("click", () => {
 
   let helpWindow = document.createElement("div");
-  helpWindow.style.cssText = "position: absolute; height: 100%; width: 100%; z-index: 10; background-color: gray; opacity: 0.8;";
-  
+  helpWindow.style.cssText = "position: relative; height: 100%; width: 100%; z-index: 10; background-color: gray; opacity: 0.8;";
+  /*
+  let isFullScreen = !Boolean(document.getElementById("wholeWrapper").style.transform);
+  if(!isFullScreen) helpWindow.style.cssText += "transform: scale(0.65);";
+  */
   helpWindow.innerHTML = `
-    <p style="position: absolute; top: 0; left: 70%;">↑カメラとマイクをONにしましょう！</p>
     <h2 style="position: absolute; top: 5%; left: 80%;"><a id="windowCloser" style="text-decoration: underline; cursor: pointer;">×とじる</a></h2>
-    <h1 style="position: relative; top: 10%; text-align: center;">おえかきひろばへようこそ！</h1>
-    <div style="position: relative; top: 10%; text-align: center;">
+    <h1 style="position: absolute; top: 10%; width: 100%; text-align: center;">おえかきひろばへようこそ！</h1>
+    <div style="position: absolute; top: 25%; width: 100%; text-align: center;">
       <a class="helpNum">　1　</a>
       <a class="helpNum">　2　</a>
       <a class="helpNum">　3　</a>
@@ -564,6 +575,7 @@ document.getElementById("help_button").addEventListener("click", () => {
 
   let helpContents = [
     `<div class="helpContents helpContents_center">
+      <p>カメラとマイクをONにしましょう！</p>
       <p>カメラの<ruby><rb>前</rb><rt>まえ</rt></ruby>に<ruby><rb>指</rb><rt>ゆび</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すことで、カメラが<ruby><rb>指</rb><rt>ゆび</rt></ruby>を<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
       <p><ruby><rb>両手</rb><rt>りょうて</rt></ruby>を<ruby><rb>出</rb><rt>だ</rt></ruby>すと、どちらの<ruby><rb>指</rb><rt>ゆび</rt></ruby>も<ruby><rb>検出</rb><rt>けんしゅつ</rt></ruby>します。</p>
       <img src="png/select2.png" height="128px" width="128px">
@@ -622,11 +634,12 @@ for (let i = 0; i < colorbuttons.length; i++) {
 let thicknessbuttons = document.querySelectorAll(".thicknesses");
 for (let i = 0; i < thicknessbuttons.length; i++) {
   thicknessbuttons[i].addEventListener("click", (e) => {
-    let selectedThickness = Object.keys(thickList)[i];
-    console.log(i);
-    console.log(thickList[selectedThickness]);
-    line_thickness = [30, 15, 5][i];
-    document.getElementById("current_thickness").className = `color_${selectedThickness}`;
+    const selectedThickness = e.target.classList[2];
+    // console.log(i);
+    // console.log(thickList[selectedThickness]);
+    line_thickness = thickList[selectedThickness];
+    // document.getElementById("current_thickness").className = `color_${selectedThickness}`;
+    document.getElementById("current_thickness").className = `color_white thicknesses ${selectedThickness}`;
 })
 }
 
