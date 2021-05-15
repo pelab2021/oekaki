@@ -10,6 +10,8 @@ window.addEventListener("load", () => {
   }
 });
 
+let initFlag = true;
+
 window.addEventListener("orientationchange", () => {
   if(window.orientation === 0 || (screen && screen.orientation && screen.orientation.angle === 0)){
     if(!document.getElementById("letHorizontal")){
@@ -22,7 +24,13 @@ window.addEventListener("orientationchange", () => {
     }
   }
   else{
-    if(document.getElementById("letHorizontal")) document.getElementById("letHorizontal").remove();
+    if(document.getElementById("letHorizontal")){
+      document.getElementById("letHorizontal").remove();
+      if(initFlag){
+        initFlag = false;
+        main();
+      }
+    }
   }
 })
 
@@ -586,7 +594,7 @@ document.getElementById("help_button").addEventListener("click", () => {
 //     });
 //   }
 // }
-main();
+// main();
 
 /*
 // 音声認識
