@@ -420,61 +420,61 @@ document.getElementById("clear_button").onclick = () => {
   clear_flag = true;
 }
 
-document.getElementById("upload_button").onclick = () => {
-  console.log("up clicked");
-  const upload_img = (save_canvas_elem) => {
-    console.log("in upload_img");
-    const sendData = save_canvas_elem.toDataURL("image/png");
-    const fullScreen = document.createElement("div");
-    fullScreen.id = "uploadFullscreen";
-    fullScreen.style.cssText = "position: fixed; height: 100%; width: 100%;";
-    fullScreen.innerHTML = `
-      <div id="uploadArea">
-      <h3>作った絵をアップロードしよう！</h3>  
-      <div>絵をアップロードするとホームページ内を絵がうごきます。<div>
-      <div>ほかの人にも自分の作品をじまんしよう！</div>
-        <div>
-          <input type="text" placeholder="ニックネーム" id="uploadName" size="20">
-          <button id="uploadPost">アップロード</button>
-          <button id="uploadCancel">キャンセル</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(fullScreen);
-    document.getElementById("uploadCancel").onclick = () => {
-      fullScreen.remove();
-    };
-    document.getElementById("uploadPost").addEventListener("click", () => {
-      const nickname = document.getElementById("uploadName").value;
+// document.getElementById("upload_button").onclick = () => {
+//   console.log("up clicked");
+//   const upload_img = (save_canvas_elem) => {
+//     console.log("in upload_img");
+//     const sendData = save_canvas_elem.toDataURL("image/png");
+//     const fullScreen = document.createElement("div");
+//     fullScreen.id = "uploadFullscreen";
+//     fullScreen.style.cssText = "position: fixed; height: 100%; width: 100%;";
+//     fullScreen.innerHTML = `
+//       <div id="uploadArea">
+//       <h3>作った絵をアップロードしよう！</h3>  
+//       <div>絵をアップロードするとホームページ内を絵がうごきます。<div>
+//       <div>ほかの人にも自分の作品をじまんしよう！</div>
+//         <div>
+//           <input type="text" placeholder="ニックネーム" id="uploadName" size="20">
+//           <button id="uploadPost">アップロード</button>
+//           <button id="uploadCancel">キャンセル</button>
+//         </div>
+//       </div>
+//     `;
+//     document.body.appendChild(fullScreen);
+//     document.getElementById("uploadCancel").onclick = () => {
+//       fullScreen.remove();
+//     };
+//     document.getElementById("uploadPost").addEventListener("click", () => {
+//       const nickname = document.getElementById("uploadName").value;
 
-      const url = "https://pelab-oekaki.net:3000/upload";
-      const param = {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ data: sendData, nickname: nickname })
-      };
-      fetch(url, param).then((response) => {
-        if (!response.ok) {
-          console.log('error!');
-        }
-        console.log(response);
-        return response.text();
-      }).then((data) => {
-        const jsonData = JSON.parse(data);
-        alert("アップロードできました！");
-        console.log(`Your Image was saved as ${jsonData["filename"]}`);
-        document.getElementById("uploadFullscreen").remove();
-      }).catch((error) => {
-        alert("アップロードに失敗しました");
-        console.log(`[error] ${error}`);
-      });
-    });
-  }
-  save_img_manager.request(upload_img)
-}
+//       const url = "https://pelab-oekaki.net:3000/upload";
+//       const param = {
+//         method: "POST",
+//         mode: "cors",
+//         headers: {
+//           "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify({ data: sendData, nickname: nickname })
+//       };
+//       fetch(url, param).then((response) => {
+//         if (!response.ok) {
+//           console.log('error!');
+//         }
+//         console.log(response);
+//         return response.text();
+//       }).then((data) => {
+//         const jsonData = JSON.parse(data);
+//         alert("アップロードできました！");
+//         console.log(`Your Image was saved as ${jsonData["filename"]}`);
+//         document.getElementById("uploadFullscreen").remove();
+//       }).catch((error) => {
+//         alert("アップロードに失敗しました");
+//         console.log(`[error] ${error}`);
+//       });
+//     });
+//   }
+//   save_img_manager.request(upload_img)
+// }
 
 document.getElementById("color").onchange = () => {
   const str = document.getElementById("color").value;
@@ -542,7 +542,7 @@ document.getElementById("help_button").addEventListener("click", () => {
       <p>「けしゴム」をクリックすると<br>かいたものをけせます。</span></p>
       </div>`,
     `<div class="helpContents helpContents_center">
-      <p>「アップ」をクリックすると<br>絵をウェブサイト上に<br>アップロードできます。</span></p>
+      <p>いろをかえることもできます。</span></p>
       <p>レッツチャレンジ！</span></p>
       </div>`,
   ];

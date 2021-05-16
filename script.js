@@ -213,64 +213,64 @@ document.getElementById("save_button").onclick = () => {
 }
 
 
-document.getElementById("upload_button").onclick = () => {
-  const upload_img = (save_canvas_elem)=>{
-    const sendData = save_canvas_elem.toDataURL("image/png");
-    const fullScreen = document.createElement("div");
-    fullScreen.id = "uploadFullscreen";
-    fullScreen.style.cssText = "position: fixed; height: 100%; width: 100%;";
+// document.getElementById("upload_button").onclick = () => {
+//   const upload_img = (save_canvas_elem)=>{
+//     const sendData = save_canvas_elem.toDataURL("image/png");
+//     const fullScreen = document.createElement("div");
+//     fullScreen.id = "uploadFullscreen";
+//     fullScreen.style.cssText = "position: fixed; height: 100%; width: 100%;";
   
-    fullScreen.innerHTML = `
-    <div id="uploadArea">
-      <h3><ruby><rb>作</rb><rt>つく</rt></ruby>った<ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードしよう！</h3>  
-      <div><ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードするとホームページ<ruby><rb>内</rb><rt>ない</rt></ruby>を<ruby><rb>絵</rb><rt>え</rt></ruby>が<ruby><rb>泳</rb><rt>およ</rt></ruby>ぎます。</div>
-      <div>ほかの人にも<ruby><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby><rb>作品</rb><rt>さくひん</rt></ruby>をじまんしよう！</div>
-      <div><img src=${sendData} height="360px" width="640px" id="imgArea"></div>
-      <div>
-        <input type="text" placeholder="ニックネーム" id="uploadName" size="20">
-        <button id="uploadPost">アップロード</button>
-        <button id="uploadCancel">キャンセル</button>
-      </div>
-    </div>
-  `;
-    document.body.appendChild(fullScreen);
+//     fullScreen.innerHTML = `
+//     <div id="uploadArea">
+//       <h3><ruby><rb>作</rb><rt>つく</rt></ruby>った<ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードしよう！</h3>  
+//       <div><ruby><rb>絵</rb><rt>え</rt></ruby>をアップロードするとホームページ<ruby><rb>内</rb><rt>ない</rt></ruby>を<ruby><rb>絵</rb><rt>え</rt></ruby>が<ruby><rb>泳</rb><rt>およ</rt></ruby>ぎます。</div>
+//       <div>ほかの人にも<ruby><rb>自分</rb><rt>じぶん</rt></ruby>の<ruby><rb>作品</rb><rt>さくひん</rt></ruby>をじまんしよう！</div>
+//       <div><img src=${sendData} height="360px" width="640px" id="imgArea"></div>
+//       <div>
+//         <input type="text" placeholder="ニックネーム" id="uploadName" size="20">
+//         <button id="uploadPost">アップロード</button>
+//         <button id="uploadCancel">キャンセル</button>
+//       </div>
+//     </div>
+//   `;
+//     document.body.appendChild(fullScreen);
   
-    let isFullScreen = !Boolean(document.getElementById("wholeWrapper").style.transform);
-    if(!isFullScreen) document.getElementById("uploadArea").style.cssText += "transform: scale(0.65);";
+//     let isFullScreen = !Boolean(document.getElementById("wholeWrapper").style.transform);
+//     if(!isFullScreen) document.getElementById("uploadArea").style.cssText += "transform: scale(0.65);";
   
-    document.getElementById("uploadCancel").onclick = () => {
-      fullScreen.remove();
-    };
-    document.getElementById("uploadPost").addEventListener("click", () => {
-      const nickname = document.getElementById("uploadName").value;
-      const url = "https://pelab-oekaki.net:3000/upload";
-      const param = {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({data: sendData, nickname: nickname})
-      };
-      fetch(url, param).then((response) => {
-        if(!response.ok){
-          console.log('error!');
-        }
-        console.log(response);
-        return response.text();
-      }).then((data) => {
-        const jsonData = JSON.parse(data);
-        alert("アップロードできました！");
-        console.log(`Your Image was saved as ${jsonData["filename"]}`);
-        document.getElementById("uploadFullscreen").remove();
-      }).catch((error) => {
-        alert("アップロードに失敗しました");
-        console.log(`[error] ${error}`);
-      });
-    });
-  }
-  save_img_manager.request(upload_img);
-}
+//     document.getElementById("uploadCancel").onclick = () => {
+//       fullScreen.remove();
+//     };
+//     document.getElementById("uploadPost").addEventListener("click", () => {
+//       const nickname = document.getElementById("uploadName").value;
+//       const url = "https://pelab-oekaki.net:3000/upload";
+//       const param = {
+//         method: "POST",
+//         mode: "cors",
+//         headers: {
+//           "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify({data: sendData, nickname: nickname})
+//       };
+//       fetch(url, param).then((response) => {
+//         if(!response.ok){
+//           console.log('error!');
+//         }
+//         console.log(response);
+//         return response.text();
+//       }).then((data) => {
+//         const jsonData = JSON.parse(data);
+//         alert("アップロードできました！");
+//         console.log(`Your Image was saved as ${jsonData["filename"]}`);
+//         document.getElementById("uploadFullscreen").remove();
+//       }).catch((error) => {
+//         alert("アップロードに失敗しました");
+//         console.log(`[error] ${error}`);
+//       });
+//     });
+//   }
+//   save_img_manager.request(upload_img);
+// }
 
 document.getElementById("eraser").onclick = () => {
   if (document.getElementById("eraser").classList.contains("valid")) {
