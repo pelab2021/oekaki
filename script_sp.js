@@ -1,4 +1,7 @@
 // import { freelizer } from 'https://cdn.jsdelivr.net/npm/freelizer@1.0.0/index.min.js'
+
+let initFlag = true;
+
 window.addEventListener("load", () => {
   if(window.orientation === 0 || (screen && screen.orientation && screen.orientation.angle === 0)){
     const letHorizontal = document.createElement("div");
@@ -8,7 +11,17 @@ window.addEventListener("load", () => {
     letHorizontal.innerText = "画面を横にしてお楽しみください";
     document.body.appendChild(letHorizontal);
   }
+  else{
+    if(document.getElementById("letHorizontal")){
+      document.getElementById("letHorizontal").remove();
+    }
+    if(initFlag){
+      initFlag = false;
+      main();
+    }
+  }
 });
+
 
 window.addEventListener("orientationchange", () => {
   if(window.orientation === 0 || (screen && screen.orientation && screen.orientation.angle === 0)){
@@ -22,7 +35,13 @@ window.addEventListener("orientationchange", () => {
     }
   }
   else{
-    if(document.getElementById("letHorizontal")) document.getElementById("letHorizontal").remove();
+    if(document.getElementById("letHorizontal")){
+      document.getElementById("letHorizontal").remove();
+    }
+    if(initFlag){
+      initFlag = false;
+      main();
+    }
   }
 })
 
@@ -586,7 +605,7 @@ document.getElementById("help_button").addEventListener("click", () => {
 //     });
 //   }
 // }
-main();
+// main();
 
 /*
 // 音声認識
